@@ -1,0 +1,116 @@
+const Student = require("../models/Student");
+const Classroom = require("../models/Classroom");
+const generateStudentID = require("../utilities/studentIDGenerator");
+const generateEmail = require("../utilities/generateSchoolEmail")
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+
+
+// Creating Endpoints for students.
+
+// Create a new student
+exports.createStudent = async (req, res) => {
+    // get the student properties
+    const { fullname, password, profilePicture } = req.body
+
+    try {
+        // Check if user already exists
+        const existingFullname = await Student.findOne({ fullname });
+        if (existingFullname) {
+            return res.status(400).json({ message: "User  already exists" });
+        }
+
+        const email = generateEmail(fullname);
+        const studentID = generateStudentID(new Date().getFullYear());
+
+        // Create new user
+        const newStudent = new Student({ fullname, password, profilePicture, email, studentID });
+       
+        await newStudent.save();
+        res.status(201).json({ message: 'Student created successfully', newStudent });
+
+    } catch (error) {
+        console.log("Error occuring: ",error)
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+// Get all students
+exports.getAllStudent = async (req, res) => {
+    try {
+        const students = await Student.find({});
+        res.status(200).json({ students });
+    } catch (error) {
+        console.log("Error occuring: ", error)
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+// Login student
+exports.loginStudent = async (req, res) => {
+    //Destructure
+    const { email, password } = req.body;
+
+    try {
+        // check student in database
+        const student = await Student.findOne({ email });
+        if (!student) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+        
+        // compare hashed password with user password
+        const isMatch = await bcrypt.compare(password, student.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        // Generate token
+        const token = jwt.sign(
+            { studentId: student._id},
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        res.status(200).json({ message: `Login successful`, token, student });
+    } catch (error) {
+        
+    }
+}
+
+//Assign student to a class
+exports.assignClassToStudent = async (req, res) => {
+    // Destructure
+    const { studentID, classId } = req.body;
+
+    try {
+        // Check if student exists
+        const student = await Student.findOne({ studentID });
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+        
+        // Check if classroom exists
+        const classroom = await Classroom.findOne({className: classId});
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found" });
+        }
+        
+        // Assign classroom to student
+        student.classroom = classroom._id;
+        await student.save();
+
+        // Add the student to the classroom's student list
+        classroom.students.push(student._id);
+
+        await classroom.save();
+
+        res.status(200).json({ message: "Student assigned to classroom successfully" }); 
+
+
+    } catch (err) {
+        console.log("Error: ", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
