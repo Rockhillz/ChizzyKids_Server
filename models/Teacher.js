@@ -27,8 +27,8 @@ const teacherSchema = new mongoose.Schema({
 
     role: {
       type: String,
-      enum: 'teacher',
-      required: true
+      enum: ['teacher', 'admin', 'super_admin'],
+      default: 'teacher'
     },
 
     profilePicture: {
@@ -60,7 +60,7 @@ const teacherSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     }
-  });
+});
 
 teacherSchema.pre('save', async function (next) {
     try {
@@ -71,12 +71,6 @@ teacherSchema.pre('save', async function (next) {
     } catch (error) {
         next(error);
     }
-  });
-
-// teacherSchema.pre('save', async function (next) {
-//   if (!this.yearEnrolled) {
-//     this.yearEnrolled = 
-//   }
-// })
+});
 
 module.exports = mongoose.model('Teacher', teacherSchema);
