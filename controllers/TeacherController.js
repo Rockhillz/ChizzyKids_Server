@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Teacher = require("../models/Teacher");
+const Course = require("../models/Course");
 const generateEmployeeID = require("../utilities/employeeIDGen");
 const generateEmail = require("../utilities/generateSchoolEmail");
 
@@ -76,16 +77,45 @@ exports.loginTeacher = async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign(
-      { teacherId: teacher._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-    
-    res.status(200).json({ message: `Login successful`, token, teacher });
+    const token = jwt.sign({ teacherId: teacher._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
+    res.status(200).json({ message: `Login successful`, token, teacher });
   } catch (err) {
     console.log("Error: ", err);
   }
 };
 
+// Get all Teachers
+
+exports.getAllTeachers = async (req, res) => {
+  try {
+    const teachers = await Teacher.find();
+    res.status(200).json({ teachers });
+  } catch (error) {
+    console.log("Unexpected error: ", error);
+  }
+};
+
+// Assign TEacher to subject schema
+// Not working yet. Will circle back
+exports.assignTeacher = async (req, res) => {
+  const { teacherId, subjectId } = req.body;
+
+  try {
+    // Check if teacher and subject exist
+      const teacher = await Teacher.findById(teacherId);
+      const subject = await Course.findById(subjectId);
+    if (!teacher || !subject) {
+      return res.status(404).json({ message: "Teacher or subject not found" });
+    }
+
+    // Assign the teacher to the subject
+    subject.teacher = teacher._id;
+    await subject.save();
+    res.status(200).json({ message: "Teacher assigned successfully", subject });
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+};

@@ -8,7 +8,12 @@ const announcementSchema = mongoose.Schema({
 
     body: {
         type: String,
-        required: trusted
+        required: true
+    },
+
+    sender: {
+        type: String,
+        required: true
     },
 
     date: {

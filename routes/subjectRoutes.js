@@ -3,7 +3,7 @@ const router = express.Router();
 const { createSubject, getSubjects } = require('../controllers/subjectController');
 
 // POST /subjects - Create a new subject
-router.post('/subjects', createSubject);
+router.post('/create-subject', createSubject);
 
 // GET /subjects - Retrieve all subjects
 router.get('/subjects', getSubjects);

@@ -1,8 +1,8 @@
 const Subject = require('../models/Course'); // Import the Subject model
 
 // Create a new subject
-const createSubject = async (req, res) => {
-    const { name, teacher } = req.body;
+exports.createSubject = async (req, res) => {
+    const { name } = req.body;
 
     // Validation
     if (!name) {
@@ -11,8 +11,7 @@ const createSubject = async (req, res) => {
 
     try {
         const newSubject = new Subject({
-            name,
-            teacher: teacher || null,
+            name
         });
 
         await newSubject.save(); // Save to the database
@@ -24,7 +23,7 @@ const createSubject = async (req, res) => {
 };
 
 // Retrieve all subjects
-const getSubjects = async (req, res) => {
+exports.getSubjects = async (req, res) => {
     try {
         const subjects = await Subject.find(); // Retrieve all subjects from the database
         res.json(subjects);
@@ -33,7 +32,5 @@ const getSubjects = async (req, res) => {
     }
 };
 
-module.exports = {
-    createSubject,
-    getSubjects
-};
+//Assign teacher 
+
