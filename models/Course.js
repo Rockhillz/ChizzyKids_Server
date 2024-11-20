@@ -1,19 +1,18 @@
 const mongoose = require('mongoose');
 
-const courseSchema = mongoose.Schema({
+// Define the schema for a subject
+const subjectSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
     },
-
     teacher: {
         type: String,
-        default: null
+        default: null, // Teacher is optional
     },
+}, { timestamps: true });
 
-    students: [{
-        type: String
-    }],
+// Create the model based on the schema
+const Subject = mongoose.model('Subject', subjectSchema);
 
-    
-})
+module.exports = Subject;
