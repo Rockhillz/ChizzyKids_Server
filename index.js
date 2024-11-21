@@ -8,7 +8,8 @@ const dbUrl = process.env.MONGODB_URL;
 const studentRoute = require("./routes/studentRoutes");
 const teacherRoute = require("./routes/teacherRoutes");
 const announcementRoute = require("./routes/annoucementRoutes");
-const subjectRoute = require("./routes/subjectRoutes"); 
+const subjectRoute = require("./routes/subjectRoutes");
+const classroomRoute = require("./routes/classroomRoutes");
 
 
 mongoose.connect(dbUrl).then(() => {
@@ -24,6 +25,7 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", teacherRoute);
     app.use("/api", announcementRoute);
     app.use("/api", subjectRoute);
+    app.use("/api", classroomRoute);
 
 
 

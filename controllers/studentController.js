@@ -79,6 +79,64 @@ exports.loginStudent = async (req, res) => {
     }
 }
 
+//logout student
+exports.logoutStudent = async (req, res) => {
+    try {
+        // Extract the token from the Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Authentication token is missing or invalid.' });
+        }
+
+        const token = authHeader.split(' ')[1];
+
+        // Decode the token to verify its validity
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
+        if (!decoded) {
+            return res.status(401).json({ message: 'Invalid token.' });
+        }
+
+        // Store the token in a blacklist
+        await TokenBlacklist.create({ token });
+
+        // Send a success response
+        return res.status(200).json({ message: 'Student successfully logged out.' });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'An error occurred while logging out.' });
+    }
+}
+
+//Update student profile
+exports.updateStudentProfile = async (req, res) => {
+    // Destructure
+    const { fullname, image, address, parents_name, contact_no, dateOfBirth } = req.body;
+    const { studentId } = req.params
+
+    try {
+        const student = await Student.findById(studentId)
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        } 
+
+        // Update student profile
+        student.fullname = fullname;
+        student.image = image;
+        student.address = address;
+        student.parents_name = parents_name;
+        student.contact_no = contact_no;
+        student.dateOfBirth = dateOfBirth;
+
+        await student.save();
+        res.status(200).json({ message: "Student profile updated successfully", student });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+
+}
+
 //Assign student to a class
 exports.assignClassToStudent = async (req, res) => {
     // Destructure
