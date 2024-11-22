@@ -1,4 +1,4 @@
-const Subject = require('../models/Course'); // Import the Subject model
+const Subject = require('../models/Subject'); // Import the Subject model
 
 // Create a new subject
 exports.createSubject = async (req, res) => {

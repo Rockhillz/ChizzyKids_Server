@@ -12,7 +12,7 @@ const bcrypt = require("bcryptjs");
 // Create a new student
 exports.createStudent = async (req, res) => {
     // get the student properties
-    const { fullname, password, image, address, parents_name, contact_no, gender, dateOfBirth } = req.body
+    const { fullname, password, image, address, parents_name, parent_no, gender, dateOfBirth } = req.body
 
     try {
         // Check if user already exists
@@ -26,7 +26,7 @@ exports.createStudent = async (req, res) => {
         const studentID = generateStudentID(new Date().getFullYear());
 
         // Create new user
-        const newStudent = new Student({ fullname, password, image, email, studentID, address, parents_name, contact_no, gender, dateOfBirth  });
+        const newStudent = new Student({ fullname, password, image, email, studentID, address, parents_name, parent_no, gender, dateOfBirth  });
        
         await newStudent.save();
         res.status(201).json({ message: 'Student created successfully', newStudent });
@@ -111,7 +111,7 @@ exports.logoutStudent = async (req, res) => {
 //Update student profile
 exports.updateStudentProfile = async (req, res) => {
     // Destructure
-    const { fullname, image, address, parents_name, contact_no, dateOfBirth } = req.body;
+    const { fullname, image, address, parents_name, parent_no, dateOfBirth } = req.body;
     const { studentId } = req.params
 
     try {
@@ -122,7 +122,7 @@ exports.updateStudentProfile = async (req, res) => {
             image, 
             address, 
             parents_name, 
-            contact_no, 
+            parent_no, 
             dateOfBirth
         }, { new: true });
 

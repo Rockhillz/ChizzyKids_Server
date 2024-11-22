@@ -36,9 +36,9 @@ const teacherSchema = new mongoose.Schema({
     default: 'https://res.cloudinary.com/dx6w1g03t/image/upload/v1692666382/Profile-Picture/blank-profile-picture-973460_640_qqg5d1.jpg'
     },
 
-    courses: [{
+    subjects: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
+      ref: 'Subject'
     }],
 
     department: {
@@ -58,11 +58,6 @@ const teacherSchema = new mongoose.Schema({
     gender: {
       type: String,
       enum: ['male', 'female'],
-      required: true
-    },
-
-    contact_no: {
-      type: String,
       required: true
     },
 

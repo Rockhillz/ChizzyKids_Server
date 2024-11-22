@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Teacher = require("../models/Teacher");
-const Course = require("../models/Course");
+const Subject = require("../models/Subject");
 const generateEmployeeID = require("../utilities/employeeIDGen");
 const generateEmail = require("../utilities/generateSchoolEmail");
 
@@ -16,7 +16,6 @@ exports.createTeacher = async (req, res) => {
     address,
     phone,
     gender,
-    contact_no,
     qualification,
     previous_school,
     dateOfBirth,
@@ -42,7 +41,6 @@ exports.createTeacher = async (req, res) => {
       address,
       phone,
       gender,
-      contact_no,
       qualification,
       previous_school,
       dateOfBirth,
@@ -121,7 +119,7 @@ exports.logoutTeacher = async (req, res) => {
 // Update Teacher profile
 exports.updateTeacherProfile = async (req, res) => {
   // Destructure
-  const { fullname, image, address, phone, contact_no, qualification } = req.body;
+  const { fullname, image, address, phone, qualification } = req.body;
   const { teacherId } = req.params
 
   try {
@@ -131,7 +129,6 @@ exports.updateTeacherProfile = async (req, res) => {
       image,
       address,
       phone,
-      contact_no,
       qualification,
     }, {new: true})
 
@@ -164,7 +161,7 @@ exports.assignTeacher = async (req, res) => {
   try {
     // Check if teacher and subject exist
       const teacher = await Teacher.findById(teacherId);
-      const subject = await Course.findById(subjectId);
+      const subject = await Subject.findById(subjectId);
     if (!teacher || !subject) {
       return res.status(404).json({ message: "Teacher or subject not found" });
     }
