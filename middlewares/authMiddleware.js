@@ -13,7 +13,8 @@ exports.authMiddleware = (req, res, next) => {
   try {
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach decoded user info to request
+    console.log("Decoded JWT:", decoded);
+    req.teacher = decoded; // Attach decoded user info to request
     console.log(req.user);
     next();
     

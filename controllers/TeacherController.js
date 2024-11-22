@@ -66,6 +66,7 @@ exports.loginTeacher = async (req, res) => {
   try {
     // Check if teacher exists.
     const teacher = await Teacher.findOne({ email });
+    console.log("role: ",teacher.role);
     if (!teacher) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -77,9 +78,10 @@ exports.loginTeacher = async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ teacherId: teacher._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ teacherId: teacher._id, role: teacher.role }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
+    console.log("Teacher Role at Login:", teacher.role);
 
     res.status(200).json({ message: `Login successful`, token, teacher });
   } catch (err) {
@@ -87,8 +89,65 @@ exports.loginTeacher = async (req, res) => {
   }
 };
 
-// Get all Teachers
+//Logout Teacher
+exports.logoutTeacher = async (req, res) => {
+  try {
+      // Extract the token from the Authorization header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ message: 'Authentication token is missing or invalid.' });
+      }
 
+      const token = authHeader.split(' ')[1];
+
+      // Decode the token to verify its validity
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
+      if (!decoded) {
+          return res.status(401).json({ message: 'Invalid token.' });
+      }
+
+      // Store the token in a blacklist
+      await TokenBlacklist.create({ token });
+
+      // Send a success response
+      return res.status(200).json({ message: 'Teacher successfully logged out.' });
+
+  } catch (err) {
+      console.error(err);
+      return res.status(500).json({ message: 'An error occurred while logging out.' });
+  }
+}
+
+// Update Teacher profile
+exports.updateTeacherProfile = async (req, res) => {
+  // Destructure
+  const { fullname, image, address, phone, contact_no, qualification } = req.body;
+  const { teacherId } = req.params
+
+  try {
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
+    // Update teacher profile
+    teacher.fullname = fullname;
+    teacher.image = image;
+    teacher.address = address;
+    teacher.phone = phone;
+    teacher.contact_no = contact_no;
+    teacher.qualification = qualification;
+
+    await teacher.save();
+    res.status(200).json({ message: "Teacher profile updated successfully", teacher });
+
+  } catch (err) {
+    console.log("Error: ", err);
+  } 
+}
+
+
+// Get all Teachers
 exports.getAllTeachers = async (req, res) => {
   try {
     const teachers = await Teacher.find();

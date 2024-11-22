@@ -1,15 +1,23 @@
 const express = require('express');
 const router = express.Router()
 
-const { createTeacher, loginTeacher, getAllTeachers, assignTeacher} = require('../controllers/TeacherController')
+//import middlewares
+const { adminMiddleware } = require('../middlewares/adminMiddleware');
+const { authMiddleware } = require('../middlewares/authMiddleware');
 
-// Creating endpoints for teachers.
-router.post('/createTeacher', createTeacher);
-router.post('/loginTeacher', loginTeacher);
-router.get('/getAllTeachers', getAllTeachers);
+// Import controllers
+const { createTeacher, loginTeacher, getAllTeachers, assignTeacher, logoutTeacher, updateTeacherProfile} = require('../controllers/TeacherController')
 
-// Assigning teacher to a classroom
-router.post('/subjects/assign-teacher', assignTeacher);
+// Creating endpoints for teachers routes.
+router.post('/loginTeacher', loginTeacher);  // loginTeacher
+router.post('/logoutTeacher', authMiddleware, logoutTeacher);  //logoutTeacher
+router.patch('/updateTeacher', authMiddleware, updateTeacherProfile); // updateTeacher
+
+
+// Admin endpoints routes
+router.post('/createTeacher', authMiddleware, adminMiddleware, createTeacher);
+router.get('/getAllTeachers', authMiddleware, adminMiddleware, getAllTeachers);
+router.post('/subjects/assign-teacher', authMiddleware, adminMiddleware, assignTeacher);
 
 
 
