@@ -10,6 +10,7 @@ const teacherRoute = require("./routes/teacherRoutes");
 const announcementRoute = require("./routes/annoucementRoutes");
 const subjectRoute = require("./routes/subjectRoutes");
 const classroomRoute = require("./routes/classroomRoutes");
+const reviewRoute = require("./routes/reviewRoutes");
 
 
 mongoose.connect(dbUrl).then(() => {
@@ -26,6 +27,7 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", announcementRoute);
     app.use("/api", subjectRoute);
     app.use("/api", classroomRoute);
+    app.use("/api", reviewRoute);
 
 
 
