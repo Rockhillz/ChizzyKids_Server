@@ -115,21 +115,24 @@ exports.updateStudentProfile = async (req, res) => {
     const { studentId } = req.params
 
     try {
-        const student = await Student.findById(studentId)
-        if (!student) {
+
+        //find and update
+        const updatedStudent = await Student.findByIdAndUpdate(studentId, {
+            fullname, 
+            image, 
+            address, 
+            parents_name, 
+            contact_no, 
+            dateOfBirth
+        }, { new: true });
+
+        if (!updatedStudent) {
             return res.status(404).json({ message: "Student not found" });
-        } 
+        }
 
-        // Update student profile
-        student.fullname = fullname;
-        student.image = image;
-        student.address = address;
-        student.parents_name = parents_name;
-        student.contact_no = contact_no;
-        student.dateOfBirth = dateOfBirth;
+        // Send updated student data
+        res.status(200).json({ message: "Student profile updated successfully", updatedStudent });
 
-        await student.save();
-        res.status(200).json({ message: "Student profile updated successfully", student });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server error" });
@@ -172,4 +175,3 @@ exports.assignClassToStudent = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 }
-

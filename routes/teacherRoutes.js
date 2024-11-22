@@ -11,7 +11,7 @@ const { createTeacher, loginTeacher, getAllTeachers, assignTeacher, logoutTeache
 // Creating endpoints for teachers routes.
 router.post('/loginTeacher', loginTeacher);  // loginTeacher
 router.post('/logoutTeacher', authMiddleware, logoutTeacher);  //logoutTeacher
-router.patch('/updateTeacher', authMiddleware, updateTeacherProfile); // updateTeacher
+router.patch('/updateTeacher/:teacherId', authMiddleware, updateTeacherProfile); // updateTeacher
 
 
 // Admin endpoints routes
