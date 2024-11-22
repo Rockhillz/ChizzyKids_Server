@@ -12,7 +12,7 @@ const bcrypt = require("bcryptjs");
 // Create a new student
 exports.createStudent = async (req, res) => {
     // get the student properties
-    const { fullname, password, profilePicture } = req.body
+    const { fullname, password, image, address, parents_name, parent_no, gender, dateOfBirth } = req.body
 
     try {
         // Check if user already exists
@@ -21,11 +21,12 @@ exports.createStudent = async (req, res) => {
             return res.status(400).json({ message: "User  already exists" });
         }
 
+        //Generate unique email and Student ID
         const email = generateEmail(fullname);
         const studentID = generateStudentID(new Date().getFullYear());
 
         // Create new user
-        const newStudent = new Student({ fullname, password, profilePicture, email, studentID });
+        const newStudent = new Student({ fullname, password, image, email, studentID, address, parents_name, parent_no, gender, dateOfBirth  });
        
         await newStudent.save();
         res.status(201).json({ message: 'Student created successfully', newStudent });
@@ -78,6 +79,67 @@ exports.loginStudent = async (req, res) => {
     }
 }
 
+//logout student
+exports.logoutStudent = async (req, res) => {
+    try {
+        // Extract the token from the Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Authentication token is missing or invalid.' });
+        }
+
+        const token = authHeader.split(' ')[1];
+
+        // Decode the token to verify its validity
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
+        if (!decoded) {
+            return res.status(401).json({ message: 'Invalid token.' });
+        }
+
+        // Store the token in a blacklist
+        await TokenBlacklist.create({ token });
+
+        // Send a success response
+        return res.status(200).json({ message: 'Student successfully logged out.' });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'An error occurred while logging out.' });
+    }
+}
+
+//Update student profile
+exports.updateStudentProfile = async (req, res) => {
+    // Destructure
+    const { fullname, image, address, parents_name, parent_no, dateOfBirth } = req.body;
+    const { studentId } = req.params
+
+    try {
+
+        //find and update
+        const updatedStudent = await Student.findByIdAndUpdate(studentId, {
+            fullname, 
+            image, 
+            address, 
+            parents_name, 
+            parent_no, 
+            dateOfBirth
+        }, { new: true });
+
+        if (!updatedStudent) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        // Send updated student data
+        res.status(200).json({ message: "Student profile updated successfully", updatedStudent });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+
+}
+
 //Assign student to a class
 exports.assignClassToStudent = async (req, res) => {
     // Destructure
@@ -113,4 +175,3 @@ exports.assignClassToStudent = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 }
-

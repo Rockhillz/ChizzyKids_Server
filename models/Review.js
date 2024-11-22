@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const announcementSchema = mongoose.Schema({
+const reviewSchema = mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -11,15 +11,15 @@ const announcementSchema = mongoose.Schema({
         required: true
     },
 
-    sender: {
-        type: String,
+    rating: {
+        type: Number,
         required: true
     },
 
-    date: {
+    createdAt: {
         type: Date,
         default: Date.now
     }
-})
+})  
 
-module.exports = mongoose.model('Annoucement', announcementSchema);
+module.exports = mongoose.model('Review', reviewSchema); 
