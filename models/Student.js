@@ -30,7 +30,7 @@ const studentSchema = mongoose.Schema({
         required: true
       },
 
-      contact_no: {
+      parent_no: {
         type: String,
         required: true
       },
@@ -62,9 +62,9 @@ const studentSchema = mongoose.Schema({
         ref: 'Classroom'
       },
 
-      courses: [{
+      subjects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course'
+        ref: 'Subject'
       }],
 
       grades: [{
@@ -77,8 +77,6 @@ const studentSchema = mongoose.Schema({
         required: true,
         default: () => new Date().getFullYear()
       },
-
-      // b
 
       createdAt: {
         type: Date,

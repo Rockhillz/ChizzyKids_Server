@@ -6,6 +6,12 @@ const subjectSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',        
+    }],
+    
     teacher: {
         type: String,
         default: null, // Teacher is optional
@@ -13,6 +19,4 @@ const subjectSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Create the model based on the schema
-const Subject = mongoose.model('Subject', subjectSchema);
-
-module.exports = Subject;
+module.exports = mongoose.model('Subject', subjectSchema);
