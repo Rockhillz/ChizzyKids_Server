@@ -125,21 +125,20 @@ exports.updateTeacherProfile = async (req, res) => {
   const { teacherId } = req.params
 
   try {
-    const teacher = await Teacher.findById(teacherId);
-    if (!teacher) {
+        
+    const updateTeacher = await Teacher.findByIdAndUpdate(teacherId, {
+      fullname,
+      image,
+      address,
+      phone,
+      contact_no,
+      qualification,
+    }, {new: true})
+
+    if (!updateTeacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-
-    // Update teacher profile
-    teacher.fullname = fullname;
-    teacher.image = image;
-    teacher.address = address;
-    teacher.phone = phone;
-    teacher.contact_no = contact_no;
-    teacher.qualification = qualification;
-
-    await teacher.save();
-    res.status(200).json({ message: "Teacher profile updated successfully", teacher });
+    res.status(200).json({ message: "Teacher profile updated successfully", updateTeacher });
 
   } catch (err) {
     console.log("Error: ", err);
