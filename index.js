@@ -4,6 +4,8 @@ require('dotenv').config();
 
 const dbUrl = process.env.MONGODB_URL;
 
+
+const attendanceRoute = require('./routes/attendanceRoutes');
 // Importing Routes 
 const studentRoute = require("./routes/studentRoutes");
 const teacherRoute = require("./routes/teacherRoutes");
@@ -11,7 +13,6 @@ const announcementRoute = require("./routes/annoucementRoutes");
 const subjectRoute = require("./routes/subjectRoutes");
 const classroomRoute = require("./routes/classroomRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
-
 
 mongoose.connect(dbUrl).then(() => {
     console.log("Database connected");
@@ -23,6 +24,7 @@ mongoose.connect(dbUrl).then(() => {
 
     //Mount Routes on /api
     app.use("/api", studentRoute);
+    app.use('/api', attendanceRoute);
     app.use("/api", teacherRoute);
     app.use("/api", announcementRoute);
     app.use("/api", subjectRoute);
