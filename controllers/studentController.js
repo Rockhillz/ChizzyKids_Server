@@ -142,36 +142,33 @@ exports.updateStudentProfile = async (req, res) => {
 
 //Assign student to a class
 exports.assignClassToStudent = async (req, res) => {
-    // Destructure
-    const { studentID, classId } = req.body;
+    const { studentId, classId } = req.body; // Change 'studentID' to 'studentId'
 
     try {
-        // Check if student exists
-        const student = await Student.findOne({ studentID });
+        // Find the student using their object ID
+        const student = await Student.findById(studentId);
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }
-        
-        // Check if classroom exists
-        const classroom = await Classroom.findOne({className: classId});
+
+        // Find the class and populate the subjects
+        const classroom = await Classroom.findById(classId).populate('subjects');
         if (!classroom) {
             return res.status(404).json({ message: "Classroom not found" });
         }
-        
-        // Assign classroom to student
+
+        // Assign the class to the student
         student.classroom = classroom._id;
-        await student.save();
 
-        // Add the student to the classroom's student list
-        classroom.students.push(student._id);
+        // Add class subjects to the student (avoiding duplicates)
+        const classSubjects = classroom.subjects.map(subject => subject._id);
+        student.subjects = [...new Set([...student.subjects, ...classSubjects])];
 
-        await classroom.save();
+        await student.save({ validateBeforeSave: false });
 
-        res.status(200).json({ message: "Student assigned to classroom successfully" }); 
-
-
-    } catch (err) {
-        console.log("Error: ", err);
-        return res.status(500).json({ message: "Server error" });
+        res.status(200).json({ message: "Student assigned to classroom and subjects updated", student });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Server error u" });
     }
-}
+};

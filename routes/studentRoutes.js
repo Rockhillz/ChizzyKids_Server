@@ -20,7 +20,7 @@ router.post("/student/logout", authMiddleware, logoutStudent); // Logout
 // Admin routes
 router.post("/student/register", authMiddleware, adminMiddleware,  createStudent);
 router.get("/students", authMiddleware, adminMiddleware, getAllStudent);
-router.patch("/assign-Class", authMiddleware, adminMiddleware, assignClassToStudent);
+router.patch("/assign-Class", assignClassToStudent);
 
 
 module.exports = router;

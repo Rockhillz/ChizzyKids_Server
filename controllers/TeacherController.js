@@ -64,7 +64,7 @@ exports.loginTeacher = async (req, res) => {
   try {
     // Check if teacher exists.
     const teacher = await Teacher.findOne({ email });
-    console.log("role: ",teacher.role);
+    console.log("role: ", teacher.role);
     if (!teacher) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -76,9 +76,13 @@ exports.loginTeacher = async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ teacherId: teacher._id, role: teacher.role }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { teacherId: teacher._id, role: teacher.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
     console.log("Teacher Role at Login:", teacher.role);
 
     res.status(200).json({ message: `Login successful`, token, teacher });
@@ -90,58 +94,66 @@ exports.loginTeacher = async (req, res) => {
 //Logout Teacher
 exports.logoutTeacher = async (req, res) => {
   try {
-      // Extract the token from the Authorization header
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-          return res.status(401).json({ message: 'Authentication token is missing or invalid.' });
-      }
+    // Extract the token from the Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ message: "Authentication token is missing or invalid." });
+    }
 
-      const token = authHeader.split(' ')[1];
+    const token = authHeader.split(" ")[1];
 
-      // Decode the token to verify its validity
-      const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
-      if (!decoded) {
-          return res.status(401).json({ message: 'Invalid token.' });
-      }
+    // Decode the token to verify its validity
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
+    if (!decoded) {
+      return res.status(401).json({ message: "Invalid token." });
+    }
 
-      // Store the token in a blacklist
-      await TokenBlacklist.create({ token });
+    // Store the token in a blacklist
+    await TokenBlacklist.create({ token });
 
-      // Send a success response
-      return res.status(200).json({ message: 'Teacher successfully logged out.' });
-
+    // Send a success response
+    return res
+      .status(200)
+      .json({ message: "Teacher successfully logged out." });
   } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'An error occurred while logging out.' });
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "An error occurred while logging out." });
   }
-}
+};
 
 // Update Teacher profile
 exports.updateTeacherProfile = async (req, res) => {
   // Destructure
   const { fullname, image, address, phone, qualification } = req.body;
-  const { teacherId } = req.params
+  const { teacherId } = req.params;
 
   try {
-        
-    const updateTeacher = await Teacher.findByIdAndUpdate(teacherId, {
-      fullname,
-      image,
-      address,
-      phone,
-      qualification,
-    }, {new: true})
+    const updateTeacher = await Teacher.findByIdAndUpdate(
+      teacherId,
+      {
+        fullname,
+        image,
+        address,
+        phone,
+        qualification,
+      },
+      { new: true }
+    );
 
     if (!updateTeacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-    res.status(200).json({ message: "Teacher profile updated successfully", updateTeacher });
-
+    res
+      .status(200)
+      .json({ message: "Teacher profile updated successfully", updateTeacher });
   } catch (err) {
     console.log("Error: ", err);
-  } 
-}
-
+  }
+};
 
 // Get all Teachers
 exports.getAllTeachers = async (req, res) => {
@@ -153,24 +165,32 @@ exports.getAllTeachers = async (req, res) => {
   }
 };
 
-// Assign TEacher to subject schema
-// Not working yet. Will circle back
-exports.assignTeacher = async (req, res) => {
-  const { teacherId, subjectId } = req.body;
+// Assign TEacher to subject
+exports.assignteeSub = async (req, res) => {
+  const {teeId, subId} = req.body;
 
   try {
     // Check if teacher and subject exist
-      const teacher = await Teacher.findById(teacherId);
-      const subject = await Subject.findById(subjectId);
-    if (!teacher || !subject) {
-      return res.status(404).json({ message: "Teacher or subject not found" });
+    const teacherObj = await Teacher.findById(teeId);
+    if (!teacherObj) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    const subjectObj = await Subject.findById(subId);
+    if (!subjectObj) {
+      return res.status(404).json({ message: "Subject not found" });
     }
 
-    // Assign the teacher to the subject
-    subject.teacher = teacher._id;
-    await subject.save();
-    res.status(200).json({ message: "Teacher assigned successfully", subject });
-  } catch (err) {
-    console.log("Error: ", err);
+    // Validate if the subject is already in the teacher's subjects array
+    if (teacherObj.subjects.includes(subId)) {
+      return res.status(400).json({ message: "This subject is already assigned to the teacher" });
   }
-};
+    
+    // Assign teacher to subject
+    teacherObj.subjects.push(subjectObj._id);
+    await teacherObj.save();
+    res.status(200).json({ message: "Teacher assigned to subject successfully" });
+
+ } catch (error) {
+   console.log("Error: ", error);
+ }
+}

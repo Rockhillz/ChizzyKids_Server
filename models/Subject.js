@@ -12,10 +12,7 @@ const subjectSchema = new mongoose.Schema({
         ref: 'Student',        
     }],
     
-    teacher: {
-        type: String,
-        default: null, // Teacher is optional
-    },
+    
 }, { timestamps: true });
 
 // Create the model based on the schema
