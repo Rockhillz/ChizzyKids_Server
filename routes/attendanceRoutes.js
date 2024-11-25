@@ -5,9 +5,9 @@ const { markAttendance, getStudentAttendance, getClassAttendance, getAllAttendan
 const router = express.Router();
 
 // Defining routes for attendance management
-// router.post('/mark', markAttendance);
-// router.get('/getAll', getAllAttendance);
-// router.get('/student/:id', getStudentAttendance);
-// router.get('/class/:id', getClassAttendance);
+router.post('/mark', markAttendance);
+router.get('/getAll', getAllAttendance);
+router.get('/student/:id', getStudentAttendance);
+router.get('/class/:id', getClassAttendance);
 
 module.exports = router;
