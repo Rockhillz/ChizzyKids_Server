@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs')
-const employeeID = require("../utilities/employeeIDGen");
+
 
 const teacherSchema = new mongoose.Schema({
     fullname: {
@@ -27,23 +27,54 @@ const teacherSchema = new mongoose.Schema({
 
     role: {
       type: String,
-      enum: ['teacher', 'admin', 'super_admin'],
+      enum: ['teacher', 'admin'],
       default: 'teacher'
     },
 
-    profilePicture: {
+    image: {
     type: String,
     default: 'https://res.cloudinary.com/dx6w1g03t/image/upload/v1692666382/Profile-Picture/blank-profile-picture-973460_640_qqg5d1.jpg'
     },
 
-    courses: [{
+    subjects: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
+      ref: 'Subject'
     }],
 
     department: {
       type: String
     },
+
+    address: {
+      type: String,
+      required: true
+    },
+
+    phone: {
+      type: String,
+      required: true
+    },
+
+    gender: {
+      type: String,
+      enum: ['male', 'female'],
+      required: true
+    },
+
+    dateOfBirth: {
+      type: Date,
+      required: true
+    },
+
+    previous_school: {
+      type: String,
+      required: true
+    },
+
+    qualification: [{
+      type: String,
+      required: true
+    }],
 
     yearEnrolled: {
       type: Number,
@@ -62,6 +93,8 @@ const teacherSchema = new mongoose.Schema({
     }
 });
 
+
+// Hash Password before saving
 teacherSchema.pre('save', async function (next) {
     try {
         const salt = await bcrypt.genSalt(10);

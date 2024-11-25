@@ -20,13 +20,39 @@ const studentSchema = mongoose.Schema({
           required: true
       },
 
+      address: {
+        type: String,
+        required: true
+      },
+
+      parents_name: {
+        type: String,
+        required: true
+      },
+
+      parent_no: {
+        type: String,
+        required: true
+      },
+
+      gender: {
+        type: String,
+        enum: ['male', 'female'],
+        required: true
+      },
+
+      dateOfBirth: {
+        type: Date,
+        required: true
+      },
+
       studentID: {
         type: String,
         required: true,
         unique: true
       },
 
-      profilePicture: {
+      image: {
       type: String,
       default: 'https://res.cloudinary.com/dx6w1g03t/image/upload/v1692666382/Profile-Picture/blank-profile-picture-973460_640_qqg5d1.jpg'
       },
@@ -36,9 +62,9 @@ const studentSchema = mongoose.Schema({
         ref: 'Classroom'
       },
 
-      courses: [{
+      subjects: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course'
+        ref: 'Subject'
       }],
 
       grades: [{
@@ -51,8 +77,6 @@ const studentSchema = mongoose.Schema({
         required: true,
         default: () => new Date().getFullYear()
       },
-
-      // b
 
       createdAt: {
         type: Date,
@@ -77,22 +101,24 @@ studentSchema.pre('save', async function (next) {
   }
 });
 
+
+// Both Redundant due to the logic being created in the controller for speed and control
 // Generate unique enrollment number
-studentSchema.pre('save', async function (next) {
-  if (!this.studentID) {
-    this.studentID = generateStudentID(this.yearEnrolled);
-  };
-  next();
-})
+// studentSchema.pre('save', async function (next) {
+//   if (!this.studentID) {
+//     this.studentID = generateStudentID(this.yearEnrolled);
+//   };
+//   next();
+// })
 
 
-// Generate email for student
-studentSchema.pre('save', function (next) {
-  if (!this.email) {
-     this.email = generateSchoolEmail(this.fullname);
-  };
-  next();
-});
+// // Generate email for student
+// studentSchema.pre('save', function (next) {
+//   if (!this.email) {
+//      this.email = generateSchoolEmail(this.fullname);
+//   };
+//   next();
+// });
 
 
 module.exports = mongoose.model('Student', studentSchema);

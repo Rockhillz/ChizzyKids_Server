@@ -7,9 +7,9 @@ const courseSchema = mongoose.Schema({
         required: true
       },
 
-      course: {
+      subject: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course',
+        ref: 'Subject',
         required: true
       },
 
