@@ -45,6 +45,12 @@ exports.assignTeacher = async (req, res) => {
         if (!classroom) {
             return res.status(404).json({ message: "Classroom not found" });
         }
+
+        //Add validation
+        if (classroom.teacher) {
+            return res.status(400).json({ message: "This classroom already has a teacher assigned" });
+        }
+
         
         // Assign the teacher to the classroom
         classroom.teacher = teacherId;
@@ -56,3 +62,30 @@ exports.assignTeacher = async (req, res) => {
         console.log("Unexpected error: ", error);
     }
 }
+
+// Remove assigned teacher
+exports.removeTeacherFromClassroom = async (req, res) => {
+    const { classroomId } = req.body;
+
+    try {
+        // Check if the classroom exists
+        const classroom = await Classroom.findById(classroomId);
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found" });
+        }
+
+        // Check if a teacher is assigned to the classroom
+        if (!classroom.teacher) {
+            return res.status(400).json({ message: "No teacher is assigned to this classroom" });
+        }
+
+        // Remove the teacher assignment
+        classroom.teacher = null;
+        await classroom.save();
+
+        res.status(200).json({ message: "Teacher removed from classroom successfully", classroom });
+    } catch (error) {
+        console.error("Unexpected error: ", error);
+        res.status(500).json({ message: "An unexpected error occurred", error: error.message });
+    }
+};
