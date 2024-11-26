@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config(); 
+require('dotenv').config();
 
 const dbUrl = process.env.MONGODB_URL;
 
@@ -12,6 +12,7 @@ const announcementRoute = require("./routes/annoucementRoutes");
 const subjectRoute = require("./routes/subjectRoutes");
 const classroomRoute = require("./routes/classroomRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
+const eventRoute = require("./routes/eventRoutes");
 
 mongoose.connect(dbUrl).then(() => {
     console.log("Database connected");
@@ -29,6 +30,7 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", subjectRoute);
     app.use("/api", classroomRoute);
     app.use("/api", reviewRoute);
+    app.use("/api", eventRoute);
 
 
     app.get('/', (req, res) => {
