@@ -63,4 +63,20 @@ exports.assignSubjectToClass = async (req, res) => {
     }
 }
 
+// delete a subject
+exports.deleteSubject = async (req, res) => {
+    const { subjectId } = req.params;
+
+    try {
+        const subject = await Subject.findByIdAndDelete(subjectId);
+
+        if (!subject) {
+            return res.status(404).json({ message: "Subject not found" });
+        }
+
+        res.status(200).json({ message: "Subject deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
