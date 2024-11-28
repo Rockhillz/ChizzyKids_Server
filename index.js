@@ -13,6 +13,8 @@ const subjectRoute = require("./routes/subjectRoutes");
 const classroomRoute = require("./routes/classroomRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
 const eventRoute = require("./routes/eventRoutes");
+const academicRoute = require("./routes/academicYearRoutes");
+const gradeRoute = require("./routes/gradeRoutes");
 
 mongoose.connect(dbUrl).then(() => {
     console.log("Database connected");
@@ -31,6 +33,8 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", classroomRoute);
     app.use("/api", reviewRoute);
     app.use("/api", eventRoute);
+    app.use("/api", academicRoute);
+    app.use("/api", gradeRoute);
 
 
     app.get('/', (req, res) => {
