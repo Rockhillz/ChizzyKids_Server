@@ -194,3 +194,45 @@ exports.assignteeSub = async (req, res) => {
    console.log("Error: ", error);
  }
 }
+
+// Remove assigned teacher... Not added to the routes yet
+exports.removeAssignedTeacher = async (req, res) => {
+  const { teeId, subId} = req.body;
+
+  try {
+    // Check if teacher and subject exist
+    const teacherObj = await Teacher.findById(teeId);
+    if (!teacherObj) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    const subjectObj = await Subject.findById(subId);
+    if (!subjectObj) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+
+    // Remove teacher from subject
+    teacherObj.subjects = teacherObj.subjects.filter((subject) => subject.toString()!== subId);
+    await teacherObj.save();
+    res.status(200).json({ message: "Teacher removed from subject successfully" });
+
+ } catch (error) {
+   console.log("Error: ", error);
+ }
+}
+
+// delete teacher
+exports.deleteTeacher = async (req, res) => {
+  const { teacherId } = req.params;
+
+  try {
+    const teacher = await Teacher.findByIdAndDelete(teacherId);
+
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
+    res.status(200).json({ message: "Teacher deleted successfully" });
+  } catch (error) {
+    console.log("Unexpected error: ", error);
+  }
+};

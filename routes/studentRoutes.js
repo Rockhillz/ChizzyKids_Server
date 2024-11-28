@@ -6,7 +6,7 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import Controllers
-const { createStudent, loginStudent, assignClassToStudent, getAllStudent, updateStudentProfile, logoutStudent } = require("../controllers/studentController");
+const { createStudent, loginStudent, assignClassToStudent, getAllStudent, updateStudentProfile, logoutStudent, deleteStudent } = require("../controllers/studentController");
 
 
 // Creating Endpoints for students.
@@ -20,7 +20,8 @@ router.post("/student/logout", authMiddleware, logoutStudent); // Logout
 // Admin routes
 router.post("/student/register", authMiddleware, adminMiddleware,  createStudent);
 router.get("/students", authMiddleware, adminMiddleware, getAllStudent);
-router.patch("/assign-Class", assignClassToStudent);
+router.patch("/assign-Class", authMiddleware, adminMiddleware, assignClassToStudent);
+router.delete("/delete/:studentId", authMiddleware, adminMiddleware, deleteStudent); // Delete Student
 
 
 module.exports = router;

@@ -7,11 +7,12 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import Controller
-const { createSubject, getSubjects, assignSubjectToClass } = require('../controllers/subjectController');
+const { createSubject, getSubjects, assignSubjectToClass, deleteSubject } = require('../controllers/subjectController');
 
 // Creating All admin Endpoints for subjects
-router.post('/createSubject', createSubject);
-router.get('/subjects', getSubjects);
-router.patch('/assignSubjects', assignSubjectToClass);
+router.post('/createSubject', authMiddleware, adminMiddleware, createSubject);
+router.get('/subjects', authMiddleware, adminMiddleware, getSubjects);
+router.patch('/assignSubjects', authMiddleware, adminMiddleware, assignSubjectToClass);
+router.delete('/deleteSubject/:subjectId', authMiddleware, adminMiddleware, deleteSubject);
 
 module.exports = router;
