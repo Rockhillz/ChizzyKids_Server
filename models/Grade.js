@@ -1,10 +1,32 @@
 const mongoose = require('mongoose');
 
-const courseSchema = mongoose.Schema({
-    student: {
+const gradeSchema = mongoose.Schema({
+      student: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',
         required: true
+      },
+
+      academicYear: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'AcademicYear', 
+        required: true 
+      },
+
+      term: { 
+        type: String, 
+        enum: ['First Term', 'Second Term', 'Third Term'], 
+        required: true 
+      },
+
+      marks: {
+        type: Number,
+        required: true,
+      },
+
+      maxMarks: {
+        type: Number,
+        default: 100,
       },
 
       subject: {
@@ -13,9 +35,14 @@ const courseSchema = mongoose.Schema({
         required: true
       },
 
-      grade: {
-        type: String,
+      teacher: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Teacher',
         required: true
+      },
+
+      grade: {
+        type: String
       },
 
       remarks: {
@@ -34,4 +61,23 @@ const courseSchema = mongoose.Schema({
 
 })
 
-module.exports = mongoose.model('Grade', courseSchema);
+// Helper function to calculate grade
+const calculateGrade = (marks, maxMarks) => {
+  const percentage = (marks / maxMarks) * 100;
+
+  if (percentage >= 86) return 'A+';
+  if (percentage >= 76) return 'A';
+  if (percentage >= 66) return 'B';
+  if (percentage >= 56) return 'C';
+  if (percentage >= 40) return 'D';
+  return 'F';
+};
+
+gradeSchema.pre('save', function (next) {
+  if (this.marks && this.maxMarks) {
+      this.grade = calculateGrade(this.marks, this.maxMarks);
+  }
+  next();
+});
+
+module.exports = mongoose.model('Grade', gradeSchema);

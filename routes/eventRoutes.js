@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.router();
+const router = express.Router();
 
 // Import middlewares
 
@@ -15,3 +15,5 @@ router.get('/events', authMiddleware, adminMiddleware, getAllEvents);
 router.get('/event/:eventId', getSingleEvent);
 router.patch('/updateEvent/:eventId', authMiddleware, adminMiddleware, updateEvent);
 router.delete('/deleteEvent/:eventId', authMiddleware, adminMiddleware, deleteEvent);
+
+module.exports = router; 
