@@ -173,5 +173,24 @@ exports.assignClassToStudent = async (req, res) => {
     }
 };
 
+//delete student.
+exports.deleteStudent = async (req, res) => {
+    const { studentId } = req.params
+
+    try {
+        // Find and delete the student
+        const deletedStudent = await Student.findByIdAndDelete(studentId);
+
+        if (!deletedStudent) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        res.status(200).json({ message: "Student deleted successfully", deletedStudent });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
 
 //Forget Password 
