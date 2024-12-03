@@ -13,12 +13,14 @@ router.post('/loginTeacher', loginTeacher);  // loginTeacher
 router.post('/logoutTeacher', authMiddleware, logoutTeacher);  //logoutTeacher
 router.patch('/updateTeacher/:teacherId', authMiddleware, updateTeacherProfile); // updateTeacher
 
+router.get('/getAllTeachers', getAllTeachers);
+
 
 
 // Admin endpoints routes
 router.post('/createTeacher', authMiddleware, adminMiddleware, createTeacher);
 router.patch('/assignTeeSub', authMiddleware, adminMiddleware, assignteeSub)  // Assign teacher to a subject
-router.get('/getAllTeachers', authMiddleware, adminMiddleware, getAllTeachers);
+// router.get('/getAllTeachers', authMiddleware, adminMiddleware, getAllTeachers);
 router.delete('/deleteTeacher/:teacherId', authMiddleware, adminMiddleware, deleteTeacher);
 
 
