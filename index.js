@@ -1,10 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const cors = require('cors');  // For Cross-Origin Resource Sharing (CORS)
 
 const dbUrl = process.env.MONGODB_URL;
 
-// Importing Routes 
+// Importing Routes
 const studentRoute = require("./routes/studentRoutes");
 const attendanceRoute = require('./routes/attendanceRoutes');
 const teacherRoute = require("./routes/teacherRoutes");
