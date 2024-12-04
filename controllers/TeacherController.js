@@ -236,3 +236,18 @@ exports.deleteTeacher = async (req, res) => {
     console.log("Unexpected error: ", error);
   }
 };
+
+// get single teacher
+exports.singleTeacherProfile = async (req, res) => {
+  const { teacherId } = req.params;
+
+  try {
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    res.status(200).json({ message: `Teacher Profile fetched successfully`, teacher });
+    } catch (error) {
+    console.log("Unexpected error: ", error);
+    }
+}
