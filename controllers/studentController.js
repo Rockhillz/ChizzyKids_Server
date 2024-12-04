@@ -192,5 +192,26 @@ exports.deleteStudent = async (req, res) => {
     }
 }
 
+// single student profile
+exports.singleStudentProfile = async (req, res) => {
+    //Destructure
+    const { studentId } = req.params;
+
+    try {
+        // find and update
+        const student = await Student.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+        // Send updated student data
+        res.status(200).json({ message: "Student profile fetched successfully", student });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Server error" });
+    }
+
+}
+
 
 //Forget Password 
