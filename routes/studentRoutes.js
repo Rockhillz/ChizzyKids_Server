@@ -13,7 +13,7 @@ const { createStudent, loginStudent, assignClassToStudent, singleStudentProfile,
 router.post("/student/login", loginStudent);  // Login Student
 router.patch("/update-Student/:studentId", authMiddleware, updateStudentProfile); // Update Student Profile
 router.post("/student/logout", authMiddleware, logoutStudent); // Logout 
-router.get("/single-student/:studentId", authMiddleware, singleStudentProfile); // Get Single Student Profile
+router.get("/single-student/:studentId", singleStudentProfile); // Get Single Student Profile
 
 router.get("/students", getAllStudent);
 
