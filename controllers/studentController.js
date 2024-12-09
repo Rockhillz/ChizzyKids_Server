@@ -40,7 +40,9 @@ exports.createStudent = async (req, res) => {
 // Get all students
 exports.getAllStudent = async (req, res) => {
     try {
-        const students = await Student.find({});
+        const students = await Student.find({}).populate('classroom', 'className');
+
+
         res.status(200).json({ students });
     } catch (error) {
         console.log("Error occuring: ", error)
@@ -150,7 +152,6 @@ exports.assignClassToStudent = async (req, res) => {
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }
-
         // Find the class and populate the subjects
         const classroom = await Classroom.findById(classId).populate('subjects');
         if (!classroom) {
@@ -199,7 +200,7 @@ exports.singleStudentProfile = async (req, res) => {
 
     try {
         // find and update
-        const student = await Student.findById(studentId);
+        const student = await Student.findById(studentId).populate('classroom', 'className');
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }

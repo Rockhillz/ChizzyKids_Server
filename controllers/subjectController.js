@@ -1,5 +1,6 @@
 const Subject = require('../models/Subject'); // Import the Subject model
 const Classroom = require('../models/Classroom'); // Import the Classroom
+const Student = require('../models/Student'); // Import the Student
 
 // Create a new subject
 exports.createSubject = async (req, res) => {
@@ -80,3 +81,20 @@ exports.deleteSubject = async (req, res) => {
     }
 };
 
+// Fetch all subjects done by a single student
+
+exports.getSubjectsByStudent = async (req, res) => {
+    const { studentId } = req.params;
+
+    try {
+        const student = await Student.findById(studentId).populate('subjects');
+
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        res.status(200).json({ message: "Subjects fetched successfully", subjects: student.subjects });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
