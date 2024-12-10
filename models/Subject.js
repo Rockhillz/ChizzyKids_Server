@@ -11,7 +11,13 @@ const subjectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',        
     }],
-    
+
+    teacher: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Teacher',
+        default: null
+    },
+
     
 }, { timestamps: true });
 
