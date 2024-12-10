@@ -92,14 +92,15 @@ const studentSchema = mongoose.Schema({
 // hash password before saving
 studentSchema.pre('save', async function (next) {
   try {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(this.password, salt);
-      this.password = hashedPassword;
-      next();
+    if (!this.isModified('password')) return next(); // Only hash if password is modified
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
   } catch (error) {
-      next(error);
+    next(error);
   }
 });
+
 
 
 // Both Redundant due to the logic being created in the controller for speed and control
