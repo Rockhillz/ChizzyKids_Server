@@ -19,7 +19,6 @@ router.get("/students", getAllStudent);
 
 
 
-
 // Admin routes
 router.post("/student/register", authMiddleware, adminMiddleware,  createStudent);
 // router.get("/students", authMiddleware, adminMiddleware, getAllStudent); commented out for now
