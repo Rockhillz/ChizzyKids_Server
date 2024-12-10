@@ -87,13 +87,22 @@ exports.getSubjectsByStudent = async (req, res) => {
     const { studentId } = req.params;
 
     try {
-        const student = await Student.findById(studentId).populate('subjects');
+        const student = await Student.findById(studentId).populate({
+            path: 'subjects',
+            populate: {
+                path: 'teacher', // Populate the teacher field in each subject
+                select: 'fullname'
+            }
+        });
 
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }
 
-        res.status(200).json({ message: "Subjects fetched successfully", subjects: student.subjects });
+        res.status(200).json({
+            message: "Subjects fetched successfully",
+            subjects: student.subjects,
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
