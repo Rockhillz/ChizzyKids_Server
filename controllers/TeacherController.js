@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const Teacher = require("../models/Teacher");
 const Subject = require("../models/Subject");
 const generateEmployeeID = require("../utilities/employeeIDGen");
-const generateEmail = require("../utilities/generateSchoolEmail");
+// const generateEmail = require("../utilities/generateSchoolEmail");
 
 // Create a new Teacher.
 exports.createTeacher = async (req, res) => {
@@ -12,6 +12,7 @@ exports.createTeacher = async (req, res) => {
     fullname,
     password,
     image,
+    email,
     department,
     address,
     phone,
@@ -30,7 +31,7 @@ exports.createTeacher = async (req, res) => {
 
     // Generate unique employeeID and teacher Email.
     const employeeID = generateEmployeeID(new Date().getFullYear());
-    const email = generateEmail(fullname);
+    // const email = generateEmail(fullname);
 
     // Create a new teacher
     const newTeacher = new Teacher({

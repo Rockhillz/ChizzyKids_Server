@@ -1,7 +1,7 @@
 const Student = require("../models/Student");
 const Classroom = require("../models/Classroom");
 const generateStudentID = require("../utilities/studentIDGenerator");
-const generateEmail = require("../utilities/generateSchoolEmail")
+// const generateEmail = require("../utilities/generateSchoolEmail")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
@@ -12,7 +12,7 @@ const bcrypt = require("bcryptjs");
 // Create a new student
 exports.createStudent = async (req, res) => {
     // get the student properties
-    const { fullname, password, image, address, parents_name, parent_no, gender, dateOfBirth } = req.body
+    const { fullname, password, image, email, address, parents_name, parent_no, gender, dateOfBirth } = req.body
 
     try {
         // Check if user already exists
@@ -22,7 +22,7 @@ exports.createStudent = async (req, res) => {
         }
 
         //Generate unique email and Student ID
-        const email = generateEmail(fullname);
+        // const email = generateEmail(fullname);
         const studentID = generateStudentID(new Date().getFullYear());
 
         // Create new user
