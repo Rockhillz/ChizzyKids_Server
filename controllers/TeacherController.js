@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const Teacher = require("../models/Teacher");
 const Subject = require("../models/Subject");
 const generateEmployeeID = require("../utilities/employeeIDGen");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 // const generateEmail = require("../utilities/generateSchoolEmail");
 
 // Create a new Teacher.
@@ -89,40 +91,6 @@ exports.loginTeacher = async (req, res) => {
     res.status(200).json({ message: `Login successful`, token, teacher });
   } catch (err) {
     console.log("Error: ", err);
-  }
-};
-
-//Logout Teacher
-exports.logoutTeacher = async (req, res) => {
-  try {
-    // Extract the token from the Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ message: "Authentication token is missing or invalid." });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    // Decode the token to verify its validity
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Replace with your secret key
-    if (!decoded) {
-      return res.status(401).json({ message: "Invalid token." });
-    }
-
-    // Store the token in a blacklist
-    await TokenBlacklist.create({ token });
-
-    // Send a success response
-    return res
-      .status(200)
-      .json({ message: "Teacher successfully logged out." });
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(500)
-      .json({ message: "An error occurred while logging out." });
   }
 };
 
@@ -252,3 +220,80 @@ exports.singleTeacherProfile = async (req, res) => {
     console.log("Unexpected error: ", error);
     }
 }
+
+//Forget Password endpoint
+//First request token.
+// Request Password Reset
+exports.requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Store the plain resetToken in the database
+    teacher.resetPasswordToken = resetToken;
+    // student.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // Token expires in 15 minutes
+
+    await teacher.save();
+    // Send email
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // Or another email service
+      auth: {
+        user: "alasizuchukwu@gmail.com",
+        pass: "vmso exyv rpkr lotd",
+      },
+    });
+
+    await transporter.sendMail({
+      from: "Alasizuchukwu@gmail.com",
+      to: teacher.email,
+      subject: "Password Reset Token",
+      text: `Your password reset token is: ${resetToken}. It will expire in 10 minutes.`,
+    });
+
+    res.status(200).json({ message: "Reset token sent successfully" });
+
+    // Send the token to the user via email or other means
+    console.log(`Token sent: ${resetToken}`); // For debugging
+
+  } catch (error) {
+    console.error("Error in requestPasswordReset:", error);
+    res.status(500).json({ message: "Something went wrong", error });
+  }
+};
+
+// Reset Password
+exports.resetPassword = async (req, res) => {
+  const { email, token, password } = req.body;
+
+  try {
+    const teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ message: "User not found" });
+    }
+   
+
+    // Validate the token
+    if (teacher.resetPasswordToken !== token) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+
+    // Update the password
+    // console.log(password);
+    teacher.password = password;
+    // console.log("Hashed password: ",student.password);
+    teacher.resetPasswordToken = undefined; // Clear the token after use
+
+    await teacher.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    res.status(500).json({ message: "Something went wrong", error });
+  }
+};
