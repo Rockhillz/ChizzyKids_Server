@@ -6,13 +6,15 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import controllers
-const { createTeacher, loginTeacher, getAllTeachers, singleTeacherProfile, logoutTeacher, updateTeacherProfile, assignteeSub, deleteTeacher} = require('../controllers/TeacherController')
+const { createTeacher, loginTeacher, getAllTeachers, singleTeacherProfile, updateTeacherProfile, assignteeSub, deleteTeacher, requestPasswordReset, resetPassword} = require('../controllers/TeacherController')
 
 // Creating endpoints for teachers routes.
 router.post('/loginTeacher', loginTeacher);  // loginTeacher
-router.post('/logoutTeacher', authMiddleware, logoutTeacher);  //logoutTeacher
 router.patch('/updateTeacher/:teacherId', authMiddleware, updateTeacherProfile); // updateTeacher
 router.get('/singleTeacher/:teacherId', singleTeacherProfile);  // Get single teacher profile by id
+
+router.post("/teacher/request-reset", requestPasswordReset);
+router.post("/teacher/reset-password", resetPassword);
 
 router.get('/getAllTeachers', getAllTeachers);
 

@@ -17,6 +17,7 @@ const eventRoute = require("./routes/eventRoutes");
 const academicRoute = require("./routes/academicYearRoutes");
 const gradeRoute = require("./routes/gradeRoutes");
 
+
 mongoose.connect(dbUrl).then(() => {
     console.log("Database connected");
     const app = express();
