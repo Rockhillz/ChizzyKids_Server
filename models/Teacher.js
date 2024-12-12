@@ -81,29 +81,25 @@ const teacherSchema = new mongoose.Schema({
       required: true,
       default: () => new Date().getFullYear()
     },
-
-    createdAt: {
-      type: Date,
-      default: Date.now
+    
+    resetPasswordToken: { 
+      type: String, 
+      // select: false 
     },
-
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    }
-});
+    
+  }, { timestamps: true } );
 
 
 // Hash Password before saving
-teacherSchema.pre('save', async function (next) {
-    try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(this.password, salt);
-        this.password = hashedPassword;
-        next();
-    } catch (error) {
-        next(error);
-    }
-});
 
+teacherSchema.pre('save', async function (next) {
+  try {
+    if (!this.isModified('password')) return next(); // Only hash if password is modified
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 module.exports = mongoose.model('Teacher', teacherSchema);
