@@ -16,6 +16,7 @@ exports.authMiddleware = (req, res, next) => {
     console.log("Decoded JWT:", decoded);
     req.teacher = decoded; // Attach decoded user info to request
     console.log(req.user);
+    
     next();
     
   } catch (err) {
