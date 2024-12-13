@@ -24,12 +24,27 @@ exports.createClassroom = async (req, res) => {
 // Get all classrooms
 exports.getAllClassrooms = async (req, res) => {
     try {
-        const classrooms = await Classroom.find();
-        res.status(200).json({ classrooms });
+        const classrooms = await Classroom.find()
+            .populate('teacher', 'fullname') // Populate teacher field with the fullname field
+            .populate('students', '_id')    // Optionally, you can just get student IDs if you don't need more data
+            .populate('subjects', '_id');   // Optionally, you can just get subject IDs if you don't need more data
+
+        // Transform classrooms to include counts for students and subjects
+        const transformedClassrooms = classrooms.map(classroom => ({
+            _id: classroom._id,
+            className: classroom.className,
+            teacher: classroom.teacher, // This will already contain the teacher's populated details
+            studentsCount: classroom.students.length,
+            subjectsCount: classroom.subjects.length,
+        }));
+
+        res.status(200).json({ classrooms: transformedClassrooms });
     } catch (error) {
-        console.log("Unexpected error: ", error);
+        console.error("Unexpected error: ", error);
+        res.status(500).json({ message: "Failed to fetch classrooms" });
     }
-}
+};
+
 
 // Assign a Teacher to the classroom
 exports.assignTeacher = async (req, res) => {
@@ -87,5 +102,27 @@ exports.removeTeacherFromClassroom = async (req, res) => {
     } catch (error) {
         console.error("Unexpected error: ", error);
         res.status(500).json({ message: "An unexpected error occurred", error: error.message });
+    }
+};
+
+// Get single classroom
+
+exports.getClassroomById = async (req, res) => {
+    const { classroomId } = req.params;
+
+    try {
+        const classroom = await Classroom.findById(classroomId)
+            .populate('teacher', 'fullname')
+            .populate('students', 'fullname')
+            .populate('subjects', 'name');
+
+        if (!classroom) {
+            return res.status(404).json({ message: "Classroom not found" });
+        }
+
+        res.status(200).json({ classroom });
+    } catch (error) {
+        console.error("Unexpected error: ", error);
+        res.status(500).json({ message: "Failed to fetch classroom" });
     }
 };

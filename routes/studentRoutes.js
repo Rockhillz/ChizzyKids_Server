@@ -12,16 +12,16 @@ const { createStudent, loginStudent, assignClassToStudent, singleStudentProfile,
 // Creating Endpoints for students.
 router.post("/student/login", loginStudent);  // Login Student
 router.patch("/update-Student/:studentId", authMiddleware, updateStudentProfile); // Update Student Profile
-router.get("/single-student/:studentId", singleStudentProfile); // Get Single Student Profile
 
+// Forgot Password routes
 router.post("/request-reset", requestPasswordReset);
 router.post("/reset-password", resetPassword);
 
-router.get("/students", getAllStudent);
 
 // Admin routes
+router.get("/single-student/:studentId", authMiddleware, adminMiddleware, singleStudentProfile); // Get Single Student Profile
 router.post("/student/register", authMiddleware, adminMiddleware,  createStudent);
-// router.get("/students", authMiddleware, adminMiddleware, getAllStudent); commented out for now
+router.get("/students", authMiddleware, adminMiddleware, getAllStudent);
 router.patch("/assign-Class", authMiddleware, adminMiddleware, assignClassToStudent);
 router.delete("/delete/:studentId", authMiddleware, adminMiddleware, deleteStudent); // Delete Student
 
