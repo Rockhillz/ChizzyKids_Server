@@ -19,7 +19,7 @@ router.post("/reset-password", resetPassword);
 
 
 // Admin routes
-router.get("/single-student/:studentId", authMiddleware, adminMiddleware, singleStudentProfile); // Get Single Student Profile
+router.get("/single-student/:studentId", authMiddleware, singleStudentProfile); // Get Single Student Profile
 router.post("/student/register", authMiddleware, adminMiddleware,  createStudent);
 router.get("/students", authMiddleware, adminMiddleware, getAllStudent);
 router.patch("/assign-Class", authMiddleware, adminMiddleware, assignClassToStudent);
