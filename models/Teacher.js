@@ -84,7 +84,7 @@ const teacherSchema = new mongoose.Schema({
     
     resetPasswordToken: { 
       type: String, 
-      // select: false 
+      select: false 
     },
     
   }, { timestamps: true } );
