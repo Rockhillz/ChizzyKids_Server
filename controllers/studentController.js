@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const cloudinary = require('../utilities/cloudinary');
+
+
 
 // Creating Endpoints for students.
 
@@ -15,7 +18,6 @@ exports.createStudent = async (req, res) => {
   const {
     fullname,
     password,
-    image,
     email,
     address,
     parents_name,
@@ -24,11 +26,24 @@ exports.createStudent = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
+  const imgFile = req.file?.path; // Image file uploaded via Multer
+
+
   try {
     // Check if user already exists
     const existingFullname = await Student.findOne({ fullname });
     if (existingFullname) {
       return res.status(400).json({ message: "User  already exists" });
+    }
+
+    // Upload image to Cloudinary
+    let image = '';
+    if (imgFile) {
+      const uploadResult = await cloudinary.uploader.upload(imageFile, {
+        folder: 'students',
+        resource_type: 'image',
+      });
+      image = uploadResult.secure_url; // Get the image URL from Cloudinary
     }
 
     //Generate unique email and Student ID

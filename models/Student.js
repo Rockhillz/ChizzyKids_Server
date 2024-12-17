@@ -88,7 +88,7 @@ const studentSchema = mongoose.Schema(
 
     resetPasswordToken: { 
       type: String, 
-      // select: false
+      select: false
     }
     
   },
