@@ -6,6 +6,8 @@ const generateEmployeeID = require("../utilities/employeeIDGen");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 // const generateEmail = require("../utilities/generateSchoolEmail");
+const cloudinary = require("../utilities/cloudinary");
+const fs = require("fs");
 
 // Create a new Teacher.
 exports.createTeacher = async (req, res) => {
@@ -24,12 +26,32 @@ exports.createTeacher = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
+  // Check if file is uploaded
+  if (!req.file) {
+    return res.status(400).json({ message: "Profile image is required" });
+  }
+
   try {
     // Check if teacher already exists.
     const existingFullname = await Teacher.findOne({ fullname });
     if (existingFullname) {
       return res.status(400).json({ message: "User  already exists" });
     }
+
+    // Upload image to Cloudinary (from memory buffer)
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream(
+              { folder: "ChizzyKids_DB/teachers", resource_type: "image" },
+              (error, result) => {
+                if (error) return reject(error);
+                resolve(result);
+              }
+            )
+            .end(req.file.buffer);
+        });
+    
+        const image = uploadResult.secure_url;
 
     // Generate unique employeeID and teacher Email.
     const employeeID = generateEmployeeID(new Date().getFullYear());
