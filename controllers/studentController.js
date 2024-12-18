@@ -6,15 +6,14 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const cloudinary = require('../utilities/cloudinary');
-
-
+const cloudinary = require("../utilities/cloudinary");
+const fs = require("fs");
 
 // Creating Endpoints for students.
 
 // Create a new student
 exports.createStudent = async (req, res) => {
-  // get the student properties
+  // Get the student properties
   const {
     fullname,
     password,
@@ -26,31 +25,37 @@ exports.createStudent = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
-  const imgFile = req.file?.path; // Image file uploaded via Multer
-
+  // Check if file is uploaded
+  if (!req.file) {
+    return res.status(400).json({ message: "Profile image is required" });
+  }
 
   try {
     // Check if user already exists
     const existingFullname = await Student.findOne({ fullname });
     if (existingFullname) {
-      return res.status(400).json({ message: "User  already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    // Upload image to Cloudinary
-    let image = '';
-    if (imgFile) {
-      const uploadResult = await cloudinary.uploader.upload(imageFile, {
-        folder: 'students',
-        resource_type: 'image',
-      });
-      image = uploadResult.secure_url; // Get the image URL from Cloudinary
-    }
+    // Upload image to Cloudinary (from memory buffer)
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          { folder: "ChizzyKids_DB/students", resource_type: "image" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        )
+        .end(req.file.buffer);
+    });
 
-    //Generate unique email and Student ID
-    // const email = generateEmail(fullname);
+    const image = uploadResult.secure_url;
+
+    // Generate unique student ID
     const studentID = generateStudentID(new Date().getFullYear());
 
-    // Create new user
+    // Create new student record
     const newStudent = new Student({
       fullname,
       password,
@@ -65,11 +70,16 @@ exports.createStudent = async (req, res) => {
     });
 
     await newStudent.save();
-    res
-      .status(201)
-      .json({ message: "Student created successfully", newStudent });
+
+    console.log("Request Body:", req.body);
+    console.log("File Uploaded:", req.file);
+
+    res.status(201).json({
+      message: "Student created successfully",
+      newStudent,
+    });
   } catch (error) {
-    console.log("Error occuring: ", error);
+    console.error("Error occurred:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -140,12 +150,10 @@ exports.updateStudentProfile = async (req, res) => {
     }
 
     // Send updated student data
-    res
-      .status(200)
-      .json({
-        message: "Student profile updated successfully",
-        updatedStudent,
-      });
+    res.status(200).json({
+      message: "Student profile updated successfully",
+      updatedStudent,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error" });
@@ -177,12 +185,10 @@ exports.assignClassToStudent = async (req, res) => {
 
     await student.save({ validateBeforeSave: false });
 
-    res
-      .status(200)
-      .json({
-        message: "Student assigned to classroom and subjects updated",
-        student,
-      });
+    res.status(200).json({
+      message: "Student assigned to classroom and subjects updated",
+      student,
+    });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ message: "Server error u" });
@@ -272,7 +278,6 @@ exports.requestPasswordReset = async (req, res) => {
 
     // Send the token to the user via email or other means
     console.log(`Token sent: ${resetToken}`); // For debugging
-
   } catch (error) {
     console.error("Error in requestPasswordReset:", error);
     res.status(500).json({ message: "Something went wrong", error });
@@ -288,7 +293,7 @@ exports.resetPassword = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: "User not found" });
     }
-    console.log(student)
+    console.log(student);
 
     // Validate the token
     if (student.resetPasswordToken !== token) {
