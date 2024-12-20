@@ -149,7 +149,12 @@ exports.updateTeacherProfile = async (req, res) => {
 // Get all Teachers
 exports.getAllTeachers = async (req, res) => {
   try {
-    const teachers = await Teacher.find();
+
+    const teachers = await Teacher.find().populate(
+      "classroom",
+      "className"
+    );
+    
     res.status(200).json({ teachers });
   } catch (error) {
     console.log("Unexpected error: ", error);
@@ -158,33 +163,41 @@ exports.getAllTeachers = async (req, res) => {
 
 // Assign TEacher to subject
 exports.assignteeSub = async (req, res) => {
-  const {teeId, subId} = req.body;
+  const { teacherId, subjectId } = req.body;
 
   try {
-    // Check if teacher and subject exist
-    const teacherObj = await Teacher.findById(teeId);
+    // Check if teacher exists
+    const teacherObj = await Teacher.findById(teacherId);
     if (!teacherObj) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-    const subjectObj = await Subject.findById(subId);
+
+    // Check if subject exists
+    const subjectObj = await Subject.findById(subjectId);
     if (!subjectObj) {
       return res.status(404).json({ message: "Subject not found" });
     }
 
     // Validate if the subject is already in the teacher's subjects array
-    if (teacherObj.subjects.includes(subId)) {
+    if (teacherObj.subjects.includes(subjectId)) {
       return res.status(400).json({ message: "This subject is already assigned to the teacher" });
-  }
-    
-    // Assign teacher to subject
+    }
+
+    // Assign subject to the teacher's subjects array
     teacherObj.subjects.push(subjectObj._id);
     await teacherObj.save();
-    res.status(200).json({ message: "Teacher assigned to subject successfully" });
 
- } catch (error) {
-   console.log("Error: ", error);
- }
-}
+    // Assign the teacher to the subject's teacher field
+    subjectObj.teacher = teacherObj._id;
+    await subjectObj.save();
+
+    res.status(200).json({ message: "Teacher assigned to subject successfully" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "An unexpected error occurred", error: error.message });
+  }
+};
+
 
 // Remove assigned teacher... Not added to the routes yet
 exports.removeAssignedTeacher = async (req, res) => {
@@ -233,7 +246,10 @@ exports.singleTeacherProfile = async (req, res) => {
   const { teacherId } = req.params;
 
   try {
-    const teacher = await Teacher.findById(teacherId);
+    const teacher = await Teacher.findById(teacherId)
+  .populate("classroom", "className") // Populate classroom with only className
+  .populate("subjects", "name"); // Populate subjects with only subjectName
+
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }

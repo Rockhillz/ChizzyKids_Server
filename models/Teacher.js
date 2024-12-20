@@ -36,6 +36,11 @@ const teacherSchema = new mongoose.Schema({
     default: 'https://res.cloudinary.com/dx6w1g03t/image/upload/v1692666382/Profile-Picture/blank-profile-picture-973460_640_qqg5d1.jpg'
     },
 
+    classroom: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Classroom'
+    },
+
     subjects: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Subject'

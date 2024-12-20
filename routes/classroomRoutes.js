@@ -12,7 +12,7 @@ const { createClassroom, getAllClassrooms, assignTeacher, removeTeacherFromClass
 router.post('/create-classroom', authMiddleware, adminMiddleware, createClassroom);
 router.get('/classrooms', authMiddleware, adminMiddleware, getAllClassrooms);
 router.get('/classroom/:classroomId', authMiddleware, adminMiddleware, getClassroomById);
-router.patch('/assign-Teacher', assignTeacher)
+router.patch('/assign-Teacher', authMiddleware, adminMiddleware, assignTeacher)
 
 router.delete('/delete-teacher', removeTeacherFromClassroom);
 
