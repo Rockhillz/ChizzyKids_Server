@@ -51,32 +51,42 @@ exports.assignTeacher = async (req, res) => {
     const { teacherId, classroomId } = req.body;
 
     try {
-        // Check if teacher and classroom exist
+        // Check if teacher exists
         const teacher = await Teacher.findById(teacherId);
         if (!teacher) {
             return res.status(404).json({ message: "Teacher not found" });
         }
+
+        // Check if classroom exists
         const classroom = await Classroom.findById(classroomId);
         if (!classroom) {
             return res.status(404).json({ message: "Classroom not found" });
         }
 
-        //Add validation
+        // Validate if the classroom already has a teacher assigned
         if (classroom.teacher) {
             return res.status(400).json({ message: "This classroom already has a teacher assigned" });
         }
 
-        
         // Assign the teacher to the classroom
         classroom.teacher = teacherId;
         await classroom.save();
+
+        // Optionally update the teacher record without triggering full validation
+        await Teacher.updateOne(
+            { _id: teacherId },
+            { $set: { classroom: classroomId } }, // Only update classroom field
+            { runValidators: false } // Skip full validation
+        );
+
+        // Respond with success
         res.status(200).json({ message: "Teacher assigned successfully", classroom });
-
-
     } catch (error) {
-        console.log("Unexpected error: ", error);
+        console.error("Unexpected error: ", error);
+        res.status(500).json({ message: "An unexpected error occurred", error: error.message });
     }
-}
+};
+
 
 // Remove assigned teacher
 exports.removeTeacherFromClassroom = async (req, res) => {
