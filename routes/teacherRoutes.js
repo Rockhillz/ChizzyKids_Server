@@ -50,7 +50,7 @@ router.post("/teacher/reset-password", resetPassword);
 // Admin endpoints routes
 router.get('/singleTeacher/:teacherId', authMiddleware, singleTeacherProfile);  // Get single teacher profile by id
 router.post('/register/teacher', authMiddleware, adminMiddleware, upload.single('image'), createTeacher);
-router.patch('/assignTeeSub', authMiddleware, adminMiddleware, assignteeSub)  // Assign teacher to a subject
+router.patch('/assign/Teacher-To-Subject', authMiddleware, adminMiddleware, assignteeSub)  // Assign teacher to a subject
 router.get('/getAllTeachers', authMiddleware, adminMiddleware, getAllTeachers);
 router.delete('/deleteTeacher/:teacherId', authMiddleware, adminMiddleware, deleteTeacher);
 
