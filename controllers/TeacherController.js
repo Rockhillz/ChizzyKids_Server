@@ -9,7 +9,7 @@ const nodemailer = require("nodemailer");
 const cloudinary = require("../utilities/cloudinary");
 const fs = require("fs");
 
-// Create a new Teacher.
+// Create a new Teacher.........Working
 exports.createTeacher = async (req, res) => {
   // Destructure teacher model.
   const {
@@ -82,7 +82,7 @@ exports.createTeacher = async (req, res) => {
   }
 };
 
-// Login a Teacher.
+// Login a Teacher........Working
 exports.loginTeacher = async (req, res) => {
   const { email, password } = req.body;
 
@@ -146,7 +146,7 @@ exports.updateTeacherProfile = async (req, res) => {
   }
 };
 
-// Get all Teachers
+// Get all Teachers..........Working
 exports.getAllTeachers = async (req, res) => {
   try {
 
@@ -161,7 +161,7 @@ exports.getAllTeachers = async (req, res) => {
   }
 };
 
-// Assign TEacher to subject
+// Assign TEacher to subject......Working
 exports.assignteeSub = async (req, res) => {
   const { teacherId, subjectId } = req.body;
 
@@ -224,7 +224,7 @@ exports.removeAssignedTeacher = async (req, res) => {
  }
 }
 
-// delete teacher
+// delete teacher..............Working
 exports.deleteTeacher = async (req, res) => {
   const { teacherId } = req.params;
 
