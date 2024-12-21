@@ -11,7 +11,7 @@ const fs = require("fs");
 
 // Creating Endpoints for students.
 
-// Create a new student
+// Create a new student........Working
 exports.createStudent = async (req, res) => {
   // Get the student properties
   const {
@@ -84,7 +84,7 @@ exports.createStudent = async (req, res) => {
   }
 };
 
-// Get all students
+// Get all students..........Working
 exports.getAllStudent = async (req, res) => {
   try {
     const students = await Student.find({}).populate("classroom", "className");
@@ -96,7 +96,7 @@ exports.getAllStudent = async (req, res) => {
   }
 };
 
-// Login student
+// Login student........Working
 exports.loginStudent = async (req, res) => {
   //Destructure
   const { email, password } = req.body;
@@ -160,7 +160,7 @@ exports.updateStudentProfile = async (req, res) => {
   }
 };
 
-//Assign student to a class
+//Assign student to a class...... Working. 
 exports.assignClassToStudent = async (req, res) => {
   const { studentId, classId } = req.body; // Change 'studentID' to 'studentId'
 
@@ -170,6 +170,7 @@ exports.assignClassToStudent = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
+
     // Find the class and populate the subjects
     const classroom = await Classroom.findById(classId).populate("subjects");
     if (!classroom) {
@@ -183,7 +184,14 @@ exports.assignClassToStudent = async (req, res) => {
     const classSubjects = classroom.subjects.map((subject) => subject._id);
     student.subjects = [...new Set([...student.subjects, ...classSubjects])];
 
+    // Save the student
     await student.save({ validateBeforeSave: false });
+
+    // Add the student to the classroom's students array if not already added
+    if (!classroom.students.includes(student._id)) {
+      classroom.students.push(student._id);
+      await classroom.save();
+    }
 
     res.status(200).json({
       message: "Student assigned to classroom and subjects updated",
@@ -191,11 +199,12 @@ exports.assignClassToStudent = async (req, res) => {
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ message: "Server error u" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-//delete student.
+
+//delete student.......... Working
 exports.deleteStudent = async (req, res) => {
   const { studentId } = req.params;
 
@@ -216,7 +225,7 @@ exports.deleteStudent = async (req, res) => {
   }
 };
 
-// single student profile
+// single student profile........Working
 exports.singleStudentProfile = async (req, res) => {
   //Destructure
   const { studentId } = req.params;
@@ -241,7 +250,7 @@ exports.singleStudentProfile = async (req, res) => {
 };
 
 //Forget Password endpoint
-//First request token.
+//First request token..........Working
 exports.requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
@@ -284,7 +293,7 @@ exports.requestPasswordReset = async (req, res) => {
   }
 };
 
-// Reset Password
+// Reset Password.........Working
 exports.resetPassword = async (req, res) => {
   const { email, token, password } = req.body;
 

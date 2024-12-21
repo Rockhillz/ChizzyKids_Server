@@ -1,7 +1,7 @@
 const Classroom = require("../models/Classroom");
 const Teacher = require("../models/Teacher");
 
-// Create classrooms
+// Create classrooms........Working
 exports.createClassroom = async (req, res) => {
     const { className } = req.body;
 
@@ -21,7 +21,7 @@ exports.createClassroom = async (req, res) => {
     }
 }
 
-// Get all classrooms
+// Get all classrooms....... Working
 exports.getAllClassrooms = async (req, res) => {
     try {
         const classrooms = await Classroom.find()
@@ -46,7 +46,7 @@ exports.getAllClassrooms = async (req, res) => {
 };
 
 
-// Assign a Teacher to the classroom
+// Assign a Teacher to the classroom...... working
 exports.assignTeacher = async (req, res) => {
     const { teacherId, classroomId } = req.body;
 
@@ -115,7 +115,7 @@ exports.removeTeacherFromClassroom = async (req, res) => {
     }
 };
 
-// Get single classroom
+// Get single classroom........Working
 
 exports.getClassroomById = async (req, res) => {
     const { classroomId } = req.params;
