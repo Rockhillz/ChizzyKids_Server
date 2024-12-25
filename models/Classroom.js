@@ -34,12 +34,14 @@ classSchema.post('save', async function (doc, next) {
 
             for (const student of students) {
                 // Avoid adding duplicate subjects
-                const currentSubjectIds = student.subjects.map(subject => subject.toString());
-                const subjectsToAdd = newSubjectIds.filter(subjectId => !currentSubjectIds.includes(subjectId.toString()));
+                const currentSubjectIds = new Set(student.subjects.map(subject => subject.toString()));
+                const subjectsToAdd = newSubjectIds.filter(subjectId => !currentSubjectIds.has(subjectId.toString()));
 
                 if (subjectsToAdd.length > 0) {
                     student.subjects.push(...subjectsToAdd);
-                    await student.save(); // Save each student's updated subjects
+                    // Deduplicate before saving
+                    student.subjects = [...new Set(student.subjects.map(subject => subject.toString()))];
+                    await student.save();
                 }
             }
         }
@@ -50,6 +52,7 @@ classSchema.post('save', async function (doc, next) {
         next(err); // Pass the error to Mongoose
     }
 });
+
 
 // Middleware to update subjects when students are added to a class
 classSchema.post('save', async function (doc, next) {
