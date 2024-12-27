@@ -178,6 +178,11 @@ exports.assignteeSub = async (req, res) => {
       return res.status(404).json({ message: "Subject not found" });
     }
 
+    // Check if the subject has already been assigned to a teacher
+    if (subjectObj.teacher) {
+      return res.status(400).json({ message: "This subject is already assigned to another teacher" });
+    }
+
     // Validate if the subject is already in the teacher's subjects array
     if (teacherObj.subjects.includes(subjectId)) {
       return res.status(400).json({ message: "This subject is already assigned to the teacher" });
@@ -197,6 +202,7 @@ exports.assignteeSub = async (req, res) => {
     res.status(500).json({ message: "An unexpected error occurred", error: error.message });
   }
 };
+
 
 
 // Remove assigned teacher... Not added to the routes yet
