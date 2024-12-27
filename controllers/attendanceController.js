@@ -4,36 +4,31 @@ const Classroom = require ("../models/Classroom");
 
 
 // POST /attendance/mark: Mark attendance
-exports.markAttendance = async (req, res) => {
+
+exports.submitAttendance = async (req, res) => {
   try {
-    const { studentId, classId, date, status, remarks } = req.body;
+    const { classroomId, attendance } = req.body;
 
-    // Ensure required fields are provided
-    if (!studentId || !classId || !date || !status) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    if (!classroomId || !attendance) {
+      return res.status(400).json({ success: false, message: 'Invalid input' });
     }
 
-    // Validate the date format
-    const isValidDate = (date) => !isNaN(new Date(date).getTime());
-    if (!isValidDate(date)) {
-      return res.status(400).json({ message: 'Invalid date format. Use a valid date.' });
-    }
-
-    // Create and save the attendance record
-    const attendance = new Attendance({
+    const attendanceRecords = Object.entries(attendance).map(([studentId, status]) => ({
       studentId,
-      classId,
-      date,
+      classId: classroomId,
+      date: new Date(),
       status,
-      remarks,
-    });
+    }));
 
-    const savedAttendance = await attendance.save();
-    res.status(201).json(savedAttendance);
+    await Attendance.insertMany(attendanceRecords);
+
+    res.status(201).json({ success: true, message: 'Attendance recorded successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error marking attendance', error });
+    console.error('Error submitting attendance:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
 
 // fetch all attendance information
 exports.getAllAttendance = async ( req, res ) => { 
