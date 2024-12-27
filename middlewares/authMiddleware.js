@@ -3,12 +3,14 @@ const jwt = require('jsonwebtoken');
 // Middleware for verifying JWT token
 exports.authMiddleware = (req, res, next) => {
     // Retrieve token from Authorization header
+
   const authHeader = req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'No token, authorization denied' });
   }
 
   const token = authHeader.split(' ')[1]; // Extract token after "Bearer "
+  console.log('Authorization Token:', token);
 
   try {
     // Verify the token
