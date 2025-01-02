@@ -152,3 +152,65 @@ exports.singleSubject = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+// subjects assigned to teacher.. working
+exports.getSubjectsAssignedToTeacher = async (req, res) => {
+  try {
+    // Get the teacher's ID from the decoded token (available in req.teacher)
+    const teacherId = req.teacher.teacherId;
+
+    // Find subjects assigned to the teacher
+    const subjects = await Subject.find({ teacher: teacherId });
+
+    if (!subjects || subjects.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No subjects found for the teacher" });
+    }
+
+    // Respond with the array of subjects directly
+    res.status(200).json({
+      success: true,
+      subjects: subjects.map((subject) => ({
+        _id: subject._id,
+        name: subject.name,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching subjects for teacher:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// gets students assigned to a subject.
+
+exports.getStudentsBySubject = async (req, res) => {
+  try {
+    // Get the subjectId from the URL params
+    const { subjectId } = req.params;
+
+    // Find the subject and populate the students field
+    const subject = await Subject.findById(subjectId)
+      .populate("students", "fullname") // Adjust fields as needed
+      .populate("teacher", "fullname"); // Optional, if you want to return teacher's name too
+
+      console.log(subject)
+
+    if (!subject) {
+      return res.status(404).json({ success: false, message: "Subject not found" });
+    }
+
+    // Return the subject data along with the students assigned to it
+    res.status(200).json({
+      success: true,
+      subject: subject.name,
+      students: subject.students.map(student => ({
+        id: student._id,
+        name: student.fullname,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching students for subject:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

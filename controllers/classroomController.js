@@ -152,7 +152,7 @@ exports.getClassroomById = async (req, res) => {
   }
 };
 
-// Get classroom assigned to a teacher
+// Get classroom assigned to a teacher.... working
 
 exports.getClassroomAssignedToTeacher = async (req, res) => {
     try {

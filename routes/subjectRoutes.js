@@ -7,7 +7,7 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import Controller
-const { createSubject, getAllSubjects, assignSubjectToClass, deleteSubject, getSubjectsByStudent, singleSubject } = require('../controllers/subjectController');
+const { createSubject, getAllSubjects, assignSubjectToClass, deleteSubject, getSubjectsByStudent, singleSubject, getSubjectsAssignedToTeacher, getStudentsBySubject } = require('../controllers/subjectController');
 
 router.get('/student-subjects/:studentId', getSubjectsByStudent);
 
@@ -17,6 +17,10 @@ router.post('/createSubject', authMiddleware, adminMiddleware, createSubject);
 router.get('/subjects', authMiddleware, adminMiddleware, getAllSubjects);
 router.patch('/assignSubjects', authMiddleware, adminMiddleware, assignSubjectToClass);
 router.delete('/deleteSubject/:subjectId', authMiddleware, adminMiddleware, deleteSubject);
+
+router.get('/subjects-assigned-to-teacher', authMiddleware, getSubjectsAssignedToTeacher);
+
+router.get('/students-by-subject/:subjectId', getStudentsBySubject);
 
 router.get('/single-subject/:subjectId', singleSubject);
 
