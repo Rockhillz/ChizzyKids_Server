@@ -42,7 +42,13 @@ const markSchema = new mongoose.Schema({
   finalized: {
     type: Boolean,
     default: false,
-  }
+  },
+
+  grade: {
+    type: String,
+    enum: ["A", "B", "C", "D", "E", "F"],  // Enum to allow only letter grades
+    default: "F",  // Default to "F" if not set
+  },
 
 
 }, { timestamps: true });
