@@ -28,7 +28,7 @@ exports.updateMarks = async (req, res) => {
 
 //Finalize marks 
 exports.finalizeMarks = async (req, res) => {
-    const { student, subject } = req.body;
+    const { student, subject, grade } = req.body;
   
     try {
       const mark = await Mark.findOne({ student, subject });
@@ -43,6 +43,7 @@ exports.finalizeMarks = async (req, res) => {
   
       // Calculate total
       mark.total = mark.firstAssessment + mark.secondAssessment + mark.exam;
+      mark.grade = grade;
       mark.finalized = true;
   
       // Save the finalized mark
@@ -52,6 +53,32 @@ exports.finalizeMarks = async (req, res) => {
       res.status(500).json({ message: 'Failed to finalize marks', error: err.message });
     }
 };
+
+// Unfinalize marks.... Will revist againj
+ exports.unfinalizeMarks = async (req, res) => {
+    const { student, subject } = req.body;
+  
+    try {
+      const mark = await Mark.findOne({ student, subject });
+  
+      if (!mark) {
+        return res.status(404).json({ message: 'Marks not found for the student and subject' });
+      }
+  
+      if (!mark.finalized) {
+        return res.status(400).json({ message: 'Marks are not finalized' });
+      }
+  
+      mark.finalized = false;
+  
+      // Save the unfinalized mark
+      await mark.save();
+      res.status(200).json({ message: 'Marks unfinalized successfully', mark });
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to unfinalize marks', error: err.message });
+    }
+};
+
 
 exports.getMarksBySubject = async (req, res) => {
     const { subject } = req.params;
