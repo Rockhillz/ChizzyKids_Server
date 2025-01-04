@@ -1,3 +1,8 @@
+/// Ignore all this, dont 
+/// Actually know why i wrote this here
+// But fear of deleting cos i dont know what or how it will affect. 
+
+
 const mongoose = require("mongoose");
 const Student = require("../models/Student"); // Adjust the path as needed
 const Teacher = require("../models/Teacher"); // Adjust the path as needed
