@@ -1,6 +1,7 @@
 const Subject = require("../models/Subject"); // Import the Subject model
 const Classroom = require("../models/Classroom"); // Import the Classroom
 const Student = require("../models/Student"); // Import the Student
+const Mark = require("../models/Mark"); // Import the Mark
 
 // Create a new subject...... Working
 exports.createSubject = async (req, res) => {
@@ -184,6 +185,37 @@ exports.getSubjectsAssignedToTeacher = async (req, res) => {
 
 // gets students assigned to a subject.
 
+// exports.getStudentsBySubject = async (req, res) => {
+//   try {
+//     // Get the subjectId from the URL params
+//     const { subjectId } = req.params;
+
+//     // Find the subject and populate the students field
+//     const subject = await Subject.findById(subjectId)
+//       .populate("students", "fullname") // Adjust fields as needed
+//       .populate("teacher", "fullname"); // Optional, if you want to return teacher's name too
+
+//       console.log(subject)
+
+//     if (!subject) {
+//       return res.status(404).json({ success: false, message: "Subject not found" });
+//     }
+
+//     // Return the subject data along with the students assigned to it
+//     res.status(200).json({
+//       success: true,
+//       subject: subject.name,
+//       students: subject.students.map(student => ({
+//         id: student._id,
+//         name: student.fullname,
+//       })),
+//     });
+//   } catch (error) {
+//     console.error("Error fetching students for subject:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 exports.getStudentsBySubject = async (req, res) => {
   try {
     // Get the subjectId from the URL params
@@ -194,20 +226,32 @@ exports.getStudentsBySubject = async (req, res) => {
       .populate("students", "fullname") // Adjust fields as needed
       .populate("teacher", "fullname"); // Optional, if you want to return teacher's name too
 
-      console.log(subject)
-
     if (!subject) {
       return res.status(404).json({ success: false, message: "Subject not found" });
     }
 
-    // Return the subject data along with the students assigned to it
+    // Fetch marks for the specified subject
+    const marks = await Mark.find({ subject: subjectId });
+
+    // Map students to include their marks
+    const studentsWithMarks = subject.students.map(student => {
+      const mark = marks.find(m => m.student.toString() === student._id.toString());
+
+      return {
+        id: student._id,
+        name: student.fullname,
+        firstAssessment: mark?.firstAssessment || 0,
+        secondAssessment: mark?.secondAssessment || 0,
+        exam: mark?.exam || 0,
+        finalized: mark?.finalized || false,
+      };
+    });
+
+    // Return the subject data along with the students and their marks
     res.status(200).json({
       success: true,
       subject: subject.name,
-      students: subject.students.map(student => ({
-        id: student._id,
-        name: student.fullname,
-      })),
+      students: studentsWithMarks,
     });
   } catch (error) {
     console.error("Error fetching students for subject:", error);

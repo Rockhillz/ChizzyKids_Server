@@ -1,6 +1,6 @@
 const Mark = require('../models/Mark');
 
-// Create or Update Marks
+// Create or Update Marks..... Working
 exports.updateMarks = async (req, res) => {
   const { student, subject, firstAssessment, secondAssessment, exam } = req.body;
 
@@ -26,7 +26,7 @@ exports.updateMarks = async (req, res) => {
   }
 };
 
-//Finalize marks 
+//Finalize marks ....... Working
 exports.finalizeMarks = async (req, res) => {
     const { student, subject, grade } = req.body;
   
@@ -54,7 +54,7 @@ exports.finalizeMarks = async (req, res) => {
     }
 };
 
-// Unfinalize marks.... Will revist againj
+// Unfinalize marks.... Working
  exports.unfinalizeMarks = async (req, res) => {
     const { student, subject } = req.body;
   
@@ -78,6 +78,7 @@ exports.finalizeMarks = async (req, res) => {
       res.status(500).json({ message: 'Failed to unfinalize marks', error: err.message });
     }
 };
+
 
 
 exports.getMarksBySubject = async (req, res) => {
