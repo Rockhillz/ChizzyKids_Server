@@ -15,7 +15,7 @@ exports.submitAttendance = async (req, res) => {
 
     const attendanceRecords = Object.entries(attendance).map(([studentId, status]) => ({
       studentId,
-      classId: classroomId,
+      classroomId,
       date: new Date(),
       status,
     }));
