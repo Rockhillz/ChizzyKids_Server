@@ -6,11 +6,13 @@ const attendanceSchema = mongoose.Schema({
     ref: 'Student',
     required: true,
   },
-  classId: {
+
+  classroomId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class',
+    ref: 'Classroom',
     required: true,
   },
+
   date: {
     type: Date,
     required: true,
@@ -19,15 +21,13 @@ const attendanceSchema = mongoose.Schema({
       message: 'Invalid date format.',
     },
   },
+
   status: {
     type: String,
     enum: ['Present', 'Absent'],
     required: true,
   },
-  remarks: {
-    type: String,
-    default: '',
-  },
+  
 }, {
   timestamps: true,
 });
