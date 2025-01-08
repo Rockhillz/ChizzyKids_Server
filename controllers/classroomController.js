@@ -173,6 +173,7 @@ exports.getClassroomAssignedToTeacher = async (req, res) => {
       res.json({
         success: true,
         data: {
+          id: classroom._id,
           classroom: classroom.className,
           teacher: classroom.teacher.fullname,
           studentCount: classroom.students.length,

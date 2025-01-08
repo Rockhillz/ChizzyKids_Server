@@ -5,5 +5,13 @@ exports.validateAttendance = (req, res, next) => {
     return res.status(400).json({ success: false, message: "Invalid data" });
   }
 
+  const isValidAttendance = Object.values(attendance).every((status) =>
+    ['Present', 'Absent'].includes(status)
+  );
+
+  if (!isValidAttendance) {
+    return res.status(400).json({ success: false, message: "Invalid attendance status" });
+  }
+
   next();
 };
