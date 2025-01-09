@@ -46,7 +46,6 @@ router.post("/teacher/request-reset", requestPasswordReset);
 router.post("/teacher/reset-password", resetPassword);
 
 
-
 // Admin endpoints routes
 router.get('/singleTeacher/:teacherId', authMiddleware, singleTeacherProfile);  // Get single teacher profile by id
 router.post('/register/teacher', authMiddleware, adminMiddleware, upload.single('image'), createTeacher);

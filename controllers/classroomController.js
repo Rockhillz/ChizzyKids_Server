@@ -131,7 +131,6 @@ exports.removeTeacherFromClassroom = async (req, res) => {
 };
 
 // Get single classroom........Working
-
 exports.getClassroomById = async (req, res) => {
   const { classroomId } = req.params;
 
@@ -153,12 +152,11 @@ exports.getClassroomById = async (req, res) => {
 };
 
 // Get classroom assigned to a teacher.... working
-
 exports.getClassroomAssignedToTeacher = async (req, res) => {
     try {
       // Get the teacher's ID from the decoded token (available in req.teacher)
-      const teacherId = req.teacher.teacherId;
-  
+      const teacherId = req.teacher._id;
+      
       // Find classroom assigned to the teacher
       const classroom = await Classroom.findOne({ teacher: teacherId })
         .populate("teacher", "fullname") // Get teacher name
