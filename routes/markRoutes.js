@@ -2,9 +2,11 @@
 const express = require('express');
 const router = express.Router();
 
-// Importing controllers
+//Import middleware
+const { authMiddleware } = require("../middlewares/authMiddleware");
 
-const { updateMarks, finalizeMarks, getMarksByStudent, getMarksBySubject, unfinalizeMarks} = require('../controllers/markController');
+// Importing controllersg
+const { updateMarks, finalizeMarks, getMarksBySubject, unfinalizeMarks, getGradesByStudent } = require('../controllers/markController');
 
 // Update marks for a student in a subject
 router.post('/mark/update', updateMarks);
@@ -19,6 +21,6 @@ router.patch('/mark/unfinalize', unfinalizeMarks);
 router.get('/mark/:subjectId', getMarksBySubject);
 
 // Get marks for a specific student
-router.get('/mark/student/:studentId', getMarksByStudent);
+router.get('/student/grades/:studentId', authMiddleware, getGradesByStudent)
 
 module.exports = router;
