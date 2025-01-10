@@ -50,6 +50,8 @@ const markSchema = new mongoose.Schema({
     default: "F",  // Default to "F" if not set
   },
 
+  // will add remark here later with a post save middleware
+
 
 }, { timestamps: true });
 

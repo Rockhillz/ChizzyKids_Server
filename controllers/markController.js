@@ -95,32 +95,21 @@ exports.getMarksBySubject = async (req, res) => {
 };
 
 
-// Fetch all subjects with marks and grades for a specific student.... Not working
-exports.getStudentMarks = async (req, res) => {
-  // const { studentID } = req.params;
-  const studentID = req.student._id
-  console.log("Student ID from request:", studentID);
-
+// Fetch all subjects with marks and grades for a specific student.... Working
+exports.getGradesByStudent = async (req, res) => {
   try {
-    
-    const marks = await Mark.find({ student: studentID }).populate('subject');
 
-    // Transform the data to include subject name
-    const result = marks.map((mark) => ({
-      subjectName: mark.subject.name,
-      firstAssessment: mark.firstAssessment,
-      secondAssessment: mark.secondAssessment,
-      exam: mark.exam,
-      total: mark.total,
-      grade: mark.grade,
-    }));
+    const {studentId} = req.params; 
 
-    console.log(studentID)
-    console.log(result);
-    res.status(200).json(result);
+    const marks = await Mark.find({ student: studentId })
+      .populate('subject', 'name') // Populating subject name
+      .exec();
+
+    res.status(200).json(marks);
+
   } catch (error) {
-    console.log("Here is an error")
-    console.error('Error fetching student marks:', error);
-    res.status(500).json({ message: 'Failed to fetch student marks' });
+    res.status(500).json({ message: 'Error fetching grades', error });
+    res.status(400).json({ message: 'Bad Request', error });
+
   }
 };

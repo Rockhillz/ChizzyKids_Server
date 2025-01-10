@@ -38,24 +38,24 @@ exports.authMiddleware = async (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1]; 
-  console.log('Authorization Token:', token);
+
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded JWT:", decoded);
 
     // Check if the user is a teacher
     const teacher = await Teacher.findById(decoded.teacherId);
     if (teacher) {
       req.teacher = teacher; 
-      console.log(req.teacher);
+
       return next();
     }
 
     // Check if the user is a student
-    const student = await Student.findById(decoded.userId);
+    const student = await Student.findById(decoded.studentId);
     if (student) {
       req.student = student;
+
       return next();
     }
 
