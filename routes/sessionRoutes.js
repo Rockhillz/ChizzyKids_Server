@@ -6,9 +6,10 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import Controller
-const { createAcademicYear, setActiveTerm } = require('../controllers/academicController');
+const { createSession } = require('../controllers/sessionController');
 
-router.post('/createAcademicYear', createAcademicYear)
-router.patch('/setActiveTerm', authMiddleware, adminMiddleware, setActiveTerm)
+// import routes
+
+router.post('/createSession', authMiddleware, adminMiddleware, createSession);
 
 module.exports = router;
