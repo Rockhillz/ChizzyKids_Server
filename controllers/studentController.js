@@ -71,8 +71,6 @@ exports.createStudent = async (req, res) => {
 
     await newStudent.save();
 
-    console.log("Request Body:", req.body);
-    console.log("File Uploaded:", req.file);
 
     res.status(201).json({
       message: "Student created successfully",
@@ -91,7 +89,7 @@ exports.getAllStudent = async (req, res) => {
 
     res.status(200).json({ students });
   } catch (error) {
-    console.log("Error occuring: ", error);
+    console.error("Error occuring: ", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -120,7 +118,9 @@ exports.loginStudent = async (req, res) => {
     });
 
     res.status(200).json({ message: `Login successful`, token, student });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error: ", error);
+  }
 };
 
 //Update student profile
@@ -155,7 +155,7 @@ exports.updateStudentProfile = async (req, res) => {
       updatedStudent,
     });
   } catch (error) {
-    console.log(error);
+    console.error("error: ",error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -220,7 +220,7 @@ exports.deleteStudent = async (req, res) => {
       .status(200)
       .json({ message: "Student deleted successfully", deletedStudent });
   } catch (error) {
-    console.log(error);
+    console.error("Error: ", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -244,7 +244,6 @@ exports.singleStudentProfile = async (req, res) => {
       .status(200)
       .json({ message: "Student profile fetched successfully", student });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -286,9 +285,8 @@ exports.requestPasswordReset = async (req, res) => {
     res.status(200).json({ message: "Reset token sent successfully" });
 
     // Send the token to the user via email or other means
-    console.log(`Token sent: ${resetToken}`); // For debugging
+
   } catch (error) {
-    console.error("Error in requestPasswordReset:", error);
     res.status(500).json({ message: "Something went wrong", error });
   }
 };
@@ -302,7 +300,6 @@ exports.resetPassword = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: "User not found" });
     }
-    console.log(student);
 
     // Validate the token
     if (student.resetPasswordToken !== token) {
@@ -310,16 +307,13 @@ exports.resetPassword = async (req, res) => {
     }
 
     // Update the password
-    // console.log(password);
     student.password = password;
-    // console.log("Hashed password: ",student.password);
     student.resetPasswordToken = undefined; // Clear the token after use
 
     await student.save();
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
-    console.error("Error in resetPassword:", error);
     res.status(500).json({ message: "Something went wrong", error });
   }
 };

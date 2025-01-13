@@ -50,6 +50,12 @@ const markSchema = new mongoose.Schema({
     default: "F",  // Default to "F" if not set
   },
 
+  term: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Term',
+    required: true,
+  }
+
   // will add remark here later with a post save middleware
 
 
