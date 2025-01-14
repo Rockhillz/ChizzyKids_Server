@@ -18,9 +18,9 @@ router.get('/subjects', authMiddleware, adminMiddleware, getAllSubjects);
 router.patch('/assignSubjects', authMiddleware, adminMiddleware, assignSubjectToClass);
 router.delete('/deleteSubject/:subjectId', authMiddleware, adminMiddleware, deleteSubject);
 
-router.get('/subjects-assigned-to-teacher', authMiddleware, getSubjectsAssignedToTeacher);
+router.get('/subjects-assigned-to-teacher/:teacherId', authMiddleware, getSubjectsAssignedToTeacher);
 
-router.get('/students-by-subject/:subjectId', getStudentsBySubject);
+router.get('/students-by-subject/:subjectId', authMiddleware, getStudentsBySubject);
 
 router.get('/single-subject/:subjectId', singleSubject);
 

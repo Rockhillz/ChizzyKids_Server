@@ -6,17 +6,18 @@ exports.updateMarks = async (req, res) => {
   const { student, subject, firstAssessment, secondAssessment, exam, term } =
     req.body;
 
+
   try {
     // Ensure term is provided
     if (!term) {
       return res.status(400).json({ error: "Term is required" });
     }
 
-    let mark = await Mark.findOne({ student, subject });
+    let mark = await Mark.findOne({ student, subject, term });
 
     if (!mark) {
       // If mark record doesn't exist, create it
-      mark = new Mark({ student, subject });
+      mark = new Mark({ student, subject, term });
     }
 
     // Update the scores if provided
@@ -30,6 +31,7 @@ exports.updateMarks = async (req, res) => {
 
     res.status(200).json({ message: "Marks updated successfully", mark });
   } catch (err) {
+    console.log("An error: ", err);
     res
       .status(500)
       .json({ message: "Failed to update marks", error: err.message });
@@ -41,7 +43,7 @@ exports.finalizeMarks = async (req, res) => {
   const { student, subject, grade, term } = req.body;
 
   try {
-    const mark = await Mark.findOne({ student, subject });
+    const mark = await Mark.findOne({ student, subject, term });
 
     if (!mark) {
       return res
@@ -70,10 +72,10 @@ exports.finalizeMarks = async (req, res) => {
 
 // Unfinalize marks.... Working
 exports.unfinalizeMarks = async (req, res) => {
-  const { student, subject } = req.body;
+  const { student, subject, term } = req.body;
 
   try {
-    const mark = await Mark.findOne({ student, subject });
+    const mark = await Mark.findOne({ student, subject, term });
 
     if (!mark) {
       return res
