@@ -1,7 +1,7 @@
 const Session = require("../models/Session");
 const Term = require("../models/Term");
 
-// Create Term
+// Create Term.....working
 exports.createTerm = async (req, res) => {
     try {
       const { termName, sessionId, startDate, endDate } = req.body;
