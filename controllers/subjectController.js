@@ -158,7 +158,7 @@ exports.singleSubject = async (req, res) => {
 exports.getSubjectsAssignedToTeacher = async (req, res) => {
   try {
     // Get the teacher's ID from the decoded token (available in req.teacher)
-    const teacherId = req.teacher.teacherId;
+    const { teacherId} = req.params
 
     // Find subjects assigned to the teacher
     const subjects = await Subject.find({ teacher: teacherId });

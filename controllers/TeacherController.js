@@ -78,7 +78,7 @@ exports.createTeacher = async (req, res) => {
       .status(200)
       .json({ message: "Teacher created successfully", newTeacher });
   } catch (error) {
-    console.log("Catch error: ", error);
+    console.error("Catch error: ", error);
   }
 };
 
@@ -89,7 +89,7 @@ exports.loginTeacher = async (req, res) => {
   try {
     // Check if teacher exists.
     const teacher = await Teacher.findOne({ email });
-    console.log("role: ", teacher.role);
+    
     if (!teacher) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -108,11 +108,11 @@ exports.loginTeacher = async (req, res) => {
         expiresIn: "1h",
       }
     );
-    console.log("Teacher Role at Login:", teacher.role);
+    
 
     res.status(200).json({ message: `Login successful`, token, teacher });
   } catch (err) {
-    console.log("Error: ", err);
+    console.error("Error: ", err);
   }
 };
 
@@ -142,7 +142,7 @@ exports.updateTeacherProfile = async (req, res) => {
       .status(200)
       .json({ message: "Teacher profile updated successfully", updateTeacher });
   } catch (err) {
-    console.log("Error: ", err);
+    console.error("Error: ", err);
   }
 };
 
@@ -157,7 +157,7 @@ exports.getAllTeachers = async (req, res) => {
     
     res.status(200).json({ teachers });
   } catch (error) {
-    console.log("Unexpected error: ", error);
+    console.error("Unexpected error: ", error);
   }
 };
 
@@ -243,11 +243,11 @@ exports.deleteTeacher = async (req, res) => {
 
     res.status(200).json({ message: "Teacher deleted successfully" });
   } catch (error) {
-    console.log("Unexpected error: ", error);
+    console.error("Unexpected error: ", error);
   }
 };
 
-// get single teacher
+// get single teacher.....Working
 exports.singleTeacherProfile = async (req, res) => {
   const { teacherId } = req.params;
 
@@ -261,7 +261,7 @@ exports.singleTeacherProfile = async (req, res) => {
     }
     res.status(200).json({ message: `Teacher Profile fetched successfully`, teacher });
     } catch (error) {
-    console.log("Unexpected error: ", error);
+    console.error("Unexpected error: ", error);
     }
 }
 
@@ -302,11 +302,7 @@ exports.requestPasswordReset = async (req, res) => {
 
     res.status(200).json({ message: "Reset token sent successfully" });
 
-    // Send the token to the user via email or other means
-    console.log(`Token sent: ${resetToken}`); // For debugging
-
-  } catch (error) {
-    console.error("Error in requestPasswordReset:", error);
+  } catch (error) {;
     res.status(500).json({ message: "Something went wrong", error });
   }
 };
