@@ -1,8 +1,8 @@
 exports.validateAttendance = (req, res, next) => {
-  const { classroomId, attendance } = req.body;
+  const { classroomId, attendance, term } = req.body;
 
-  if (!classroomId || typeof attendance !== "object") {
-    return res.status(400).json({ success: false, message: "Invalid data" });
+  if (!classroomId || !term || typeof attendance !== "object") {
+    return res.status(400).json({ success: false, message: "Invalid data. Classroom ID, term, and attendance are required." });
   }
 
   const isValidAttendance = Object.values(attendance).every((status) =>
@@ -10,7 +10,7 @@ exports.validateAttendance = (req, res, next) => {
   );
 
   if (!isValidAttendance) {
-    return res.status(400).json({ success: false, message: "Invalid attendance status" });
+    return res.status(400).json({ success: false, message: "Invalid attendance status. Only 'Present' or 'Absent' are allowed." });
   }
 
   next();
