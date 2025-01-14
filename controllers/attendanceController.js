@@ -1,33 +1,45 @@
 const mongoose = require('mongoose');
 const Attendance = require('../models/Attendance'); 
-const Classroom = require ("../models/Classroom");
+const Term = require('../models/Term');
 
 
 // POST /attendance/mark: Mark attendance
 
 exports.submitAttendance = async (req, res) => {
   try {
-    const { classroomId, attendance } = req.body;
+    const { classroomId, attendance, term } = req.body;
+   
 
-    if (!classroomId || !attendance) {
-      return res.status(400).json({ success: false, message: 'Invalid input' });
+    // Validate inputs
+    if (!classroomId || !attendance || !term) {
+      return res.status(400).json({ success: false, message: 'Invalid input. Classroom ID, attendance, and term are required.' });
     }
 
+    // Validate the term ID
+    const termExists = await Term.findById(term);
+    if (!termExists) {
+      return res.status(404).json({ success: false, message: 'Invalid term ID.' });
+    }
+
+    // Prepare attendance records
     const attendanceRecords = Object.entries(attendance).map(([studentId, status]) => ({
       studentId,
       classroomId,
+      term, // Include the term ID in the attendance record
       date: new Date(),
       status,
     }));
 
+    // Insert the attendance records into the database
     await Attendance.insertMany(attendanceRecords);
 
-    res.status(201).json({ success: true, message: 'Attendance recorded successfully' });
+    res.status(201).json({ success: true, message: 'Attendance recorded successfully.' });
   } catch (error) {
     console.error('Error submitting attendance:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'Server error. Unable to record attendance.' });
   }
 };
+
 
 
 // fetch all attendance information
@@ -43,7 +55,7 @@ exports.getAllAttendance = async ( req, res ) => {
 // GET /attendance/student/:id: Get student attendance by ID
 exports.getStudentAttendance = async (req, res) => {
   try {
-    const studentId = req.params.id; // Extract studentId from the route parameters
+    const { studentId } = req.params; // Extract studentId from the route parameters
 
     // Validate if studentId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(studentId)) {
