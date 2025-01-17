@@ -10,7 +10,7 @@ const {  getStudentAttendance, getClassAttendance, getAllAttendance, submitAtten
 
 // Defining routes for attendance management
 router.post('/attendance', validateAttendance, submitAttendance);
-router.get('/getAll', getAllAttendance);
+router.get('/getAllAttendance', getAllAttendance);
 router.get('/student/:id', getStudentAttendance);
 router.get('/class/:id', getClassAttendance);
 

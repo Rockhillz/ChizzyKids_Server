@@ -3,7 +3,7 @@ const Attendance = require('../models/Attendance');
 const Term = require('../models/Term');
 
 
-// POST /attendance/mark: Mark attendance
+// POST /attendance/mark: Mark attendance.... Working
 
 exports.submitAttendance = async (req, res) => {
   try {
