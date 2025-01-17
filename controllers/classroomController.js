@@ -1,5 +1,6 @@
 const Classroom = require("../models/Classroom");
 const Teacher = require("../models/Teacher");
+const Subject = require("../models/Subject");
 
 // Create classrooms........Working
 exports.createClassroom = async (req, res) => {
@@ -94,6 +95,98 @@ exports.assignTeacher = async (req, res) => {
   }
 };
 
+//Assign subjects to a class......RWorking
+exports.assignSubjectsToClass = async (req, res) => {
+  const { classId, subjectIds } = req.body; // Accept multiple subject IDs
+  console.log(req.body)
+
+  if (!Array.isArray(subjectIds) || subjectIds.length === 0) {
+    return res.status(400).json({ message: "Please provide a valid array of subject IDs." });
+  }
+
+  try {
+    // Check if class exists
+    const classObj = await Classroom.findById(classId);
+    if (!classObj) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // Find all subject objects based on IDs
+    const validSubjects = await Subject.find({ _id: { $in: subjectIds } });
+
+    if (validSubjects.length !== subjectIds.length) {
+      return res.status(404).json({ message: "Some subjects not found." });
+    }
+
+    const invalidSubjects = subjectIds.filter(
+      (id) => !validSubjects.map((s) => s._id.toString()).includes(id.toString())
+    );
+    
+    if (invalidSubjects.length > 0) {
+      return res.status(404).json({
+        message: "Some subjects not found.",
+        invalidSubjects,
+      });
+    }
+    
+
+    // Filter out already assigned subjects
+    const newSubjectIds = subjectIds.filter(
+      (subjectId) => !classObj.subjects.includes(subjectId.toString())
+    );
+    
+
+    if (newSubjectIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "All provided subjects are already assigned to this class." });
+    }
+
+    // Assign new subjects to the class
+    classObj.subjects.push(...newSubjectIds);
+    await classObj.save();
+
+    res.status(200).json({
+      message: "Subjects assigned to class successfully.",
+      class: classObj,
+      updatedSubjects: classObj.subjects,
+      newlyAssignedSubjects: newSubjectIds,
+    });
+  } catch (error) {
+    console.error("Error assigning subjects to class:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Remove assigned subjects
+exports.getSubjectsOfClass = async (req, res) => {
+  const { ClassroomId } = req.params;
+
+  try {
+    // Check if the class exists
+    const classObj = await Classroom.findById(ClassroomId).populate("subjects", "name");
+
+    if (!classObj) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // Return the subjects assigned to the class
+    res.status(200).json({
+      message: "Subjects fetched successfully.",
+      class: {
+        id: classObj._id,
+        name: classObj.name,
+        teacher: classObj.teacher,
+      },
+      subjects: classObj.subjects,
+    });
+  } catch (error) {
+    console.error("Error fetching subjects for class:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Remove assigned teacher
 exports.removeTeacherFromClassroom = async (req, res) => {
   const { classroomId } = req.body;
@@ -116,12 +209,10 @@ exports.removeTeacherFromClassroom = async (req, res) => {
     classroom.teacher = null;
     await classroom.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Teacher removed from classroom successfully",
-        classroom,
-      });
+    res.status(200).json({
+      message: "Teacher removed from classroom successfully",
+      classroom,
+    });
   } catch (error) {
     console.error("Unexpected error: ", error);
     res
@@ -153,37 +244,57 @@ exports.getClassroomById = async (req, res) => {
 
 // Get classroom assigned to a teacher.... working
 exports.getClassroomAssignedToTeacher = async (req, res) => {
-    try {
-      // Get the teacher's ID from the decoded token (available in req.teacher)
-      const teacherId = req.teacher._id;
-      
-      // Find classroom assigned to the teacher
-      const classroom = await Classroom.findOne({ teacher: teacherId })
-        .populate("teacher", "fullname") // Get teacher name
-        .populate("students", "fullname"); // Get student names
-  
-      if (!classroom) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Classroom not found" });
-      }
-  
-      res.json({
-        success: true,
-        data: {
-          id: classroom._id,
-          classroom: classroom.className,
-          teacher: classroom.teacher.fullname,
-          studentCount: classroom.students.length,
-          students: classroom.students.map((student) => ({
-            id: student._id,
-            name: student.fullname,
-          })),
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching classroom details:", error);
-      res.status(500).json({ success: false, message: "Server error" });
+  try {
+    // Get the teacher's ID from the decoded token (available in req.teacher)
+    const teacherId = req.teacher._id;
+
+    // Find classroom assigned to the teacher
+    const classroom = await Classroom.findOne({ teacher: teacherId })
+      .populate("teacher", "fullname") // Get teacher name
+      .populate("students", "fullname"); // Get student names
+
+    if (!classroom) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Classroom not found" });
     }
-  };
-  
+
+    res.json({
+      success: true,
+      data: {
+        id: classroom._id,
+        classroom: classroom.className,
+        teacher: classroom.teacher.fullname,
+        studentCount: classroom.students.length,
+        students: classroom.students.map((student) => ({
+          id: student._id,
+          name: student.fullname,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching classroom details:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// delete a classroom..... Working
+exports.deleteClassroom = async (req, res) => {
+  const { ClassroomId } = req.params;
+
+  try {
+    // Find classroom by ID and remove it
+    const deletedClassroom = await Classroom.findByIdAndDelete(ClassroomId);
+
+    if (!deletedClassroom) {
+      return res.status(404).json({ message: "Classroom not found" });
+    }
+
+    res.json({ message: "Classroom deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting classroom:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// update a classroom

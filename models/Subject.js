@@ -19,6 +19,12 @@ const subjectSchema = new mongoose.Schema({
         default: null
     },
 
+    classroom: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Classroom',
+        required: true
+    }
+
     
 }, { timestamps: true });
 

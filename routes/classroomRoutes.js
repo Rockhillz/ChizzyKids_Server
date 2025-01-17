@@ -6,13 +6,19 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // import controllers
-const { createClassroom, getAllClassrooms, assignTeacher, removeTeacherFromClassroom, getClassroomById, getClassroomAssignedToTeacher } = require("../controllers/classroomController");
+const { createClassroom, getAllClassrooms, assignTeacher, assignSubjectsToClass, removeTeacherFromClassroom, deleteClassroom, getClassroomById, getClassroomAssignedToTeacher, getSubjectsOfClass } = require("../controllers/classroomController");
 
 //Creating All admin Endpoints for classrooms
 router.post('/create-classroom', authMiddleware, adminMiddleware, createClassroom);
 router.get('/classrooms', authMiddleware, adminMiddleware, getAllClassrooms);
 router.get('/classroom/:classroomId', authMiddleware, adminMiddleware, getClassroomById);
 router.patch('/assign-Teacher', authMiddleware, adminMiddleware, assignTeacher)
+
+router.patch('/assign-subjects-classroom', authMiddleware, adminMiddleware, assignSubjectsToClass)
+
+router.delete('/delete-classroom/:ClassroomId', authMiddleware, adminMiddleware, deleteClassroom);
+
+router.get('/subjects-of-class/:ClassroomId', authMiddleware, adminMiddleware, getSubjectsOfClass);
 
 router.get('/classrooms-assigned-to-teacher', authMiddleware, getClassroomAssignedToTeacher);
 

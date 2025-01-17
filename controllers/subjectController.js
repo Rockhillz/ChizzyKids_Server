@@ -48,45 +48,6 @@ exports.getAllSubjects = async (req, res) => {
   }
 };
 
-//Assign subjects to a class.
-exports.assignSubjectToClass = async (req, res) => {
-  const { classId, subjectId } = req.body;
-
-  try {
-    // Check if class and subject exist
-    const classObj = await Classroom.findById(classId);
-    if (!classObj) {
-      return res.status(404).json({ message: "Class not found" });
-    }
-
-    const subjectObj = await Subject.findById(subjectId);
-    if (!subjectObj) {
-      return res.status(404).json({ message: "Subject not found" });
-    }
-
-    // Validate if subject is already assigned to the class
-    if (classObj.subjects.includes(subjectId)) {
-      return res
-        .status(400)
-        .json({ message: "Subject is already assigned to this class" });
-    }
-
-    // Assign the subject to the class
-    classObj.subjects.push(subjectId);
-    await classObj.save();
-
-    res
-      .status(200)
-      .json({
-        message: "Subject assigned to class successfully",
-        class: classObj,
-        subject: subjectObj,
-      });
-  } catch (error) {
-    console.error("Error assigning subject to class:", error);
-    return res.status(500).json({ error: error.message });
-  }
-};
 
 // delete a subject
 exports.deleteSubject = async (req, res) => {
