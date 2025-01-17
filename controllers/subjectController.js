@@ -3,25 +3,43 @@ const Classroom = require("../models/Classroom"); // Import the Classroom
 const Student = require("../models/Student"); // Import the Student
 const Mark = require("../models/Mark"); // Import the Mark
 
-// Create a new subject...... Working
+// Create a new subject......Working
+
 exports.createSubject = async (req, res) => {
-  const { name } = req.body;
+  const { name, classroom } = req.body; // Include classroom in the request body
 
   // Validation
   if (!name) {
     return res.status(400).json({ error: "Subject name is required" });
   }
 
+  if (!classroom) {
+    return res.status(400).json({ error: "Classroom is required" });
+  }
+
   try {
+    // Check if the classroom exists
+    const classroomExists = await Classroom.findById(classroom);
+    if (!classroomExists) {
+      return res.status(404).json({ error: "Classroom not found" });
+    }
+
+    // Create a new subject
     const newSubject = new Subject({
       name,
+      classroom, // Reference the classroom ID
     });
 
-    await newSubject.save(); // Save to the database
+    await newSubject.save(); // Save the subject to the database
 
-    res
-      .status(201)
-      .json({ message: "Subject created successfully", subject: newSubject });
+    // Add the subject to the classroom's subjects array
+    classroomExists.subjects.push(newSubject._id);
+    await classroomExists.save(); // Save the updated classroom
+
+    res.status(201).json({
+      message: "Subject created successfully and assigned to the classroom",
+      subject: newSubject,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -32,13 +50,15 @@ exports.createSubject = async (req, res) => {
 exports.getAllSubjects = async (req, res) => {
   try {
     const subjects = await Subject.find()
-      .populate("teacher", "fullname") // Populate teacher with fullname field only
+      .populate("teacher", "fullname")
+      .populate("classroom", "className") // Populate teacher with fullname field only
       .lean(); // Converts Mongoose documents to plain JavaScript objects
 
     // Add the number of students for each subject
     const subjectsWithStudentCount = subjects.map((subject) => ({
       ...subject,
       studentCount: subject.students.length, // Calculate the number of students
+      
     }));
 
     res.status(200).json(subjectsWithStudentCount);
@@ -47,7 +67,6 @@ exports.getAllSubjects = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // delete a subject
 exports.deleteSubject = async (req, res) => {
@@ -119,7 +138,7 @@ exports.singleSubject = async (req, res) => {
 exports.getSubjectsAssignedToTeacher = async (req, res) => {
   try {
     // Get the teacher's ID from the decoded token (available in req.teacher)
-    const { teacherId} = req.params
+    const { teacherId } = req.params;
 
     // Find subjects assigned to the teacher
     const subjects = await Subject.find({ teacher: teacherId });
@@ -188,15 +207,19 @@ exports.getStudentsBySubject = async (req, res) => {
       .populate("teacher", "fullname"); // Optional, if you want to return teacher's name too
 
     if (!subject) {
-      return res.status(404).json({ success: false, message: "Subject not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Subject not found" });
     }
 
     // Fetch marks for the specified subject
     const marks = await Mark.find({ subject: subjectId });
 
     // Map students to include their marks
-    const studentsWithMarks = subject.students.map(student => {
-      const mark = marks.find(m => m.student.toString() === student._id.toString());
+    const studentsWithMarks = subject.students.map((student) => {
+      const mark = marks.find(
+        (m) => m.student.toString() === student._id.toString()
+      );
 
       return {
         id: student._id,

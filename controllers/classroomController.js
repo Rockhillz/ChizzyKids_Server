@@ -95,10 +95,9 @@ exports.assignTeacher = async (req, res) => {
   }
 };
 
-//Assign subjects to a class......RWorking
+//Assign subjects to a class......Working
 exports.assignSubjectsToClass = async (req, res) => {
   const { classId, subjectIds } = req.body; // Accept multiple subject IDs
-  console.log(req.body)
 
   if (!Array.isArray(subjectIds) || subjectIds.length === 0) {
     return res.status(400).json({ message: "Please provide a valid array of subject IDs." });
@@ -158,7 +157,70 @@ exports.assignSubjectsToClass = async (req, res) => {
   }
 };
 
-// Remove assigned subjects
+// Remove assigned subjects.....Working
+exports.removeSubjectsFromClass = async (req, res) => {
+  const { classId, subjectIds } = req.body; // Accept multiple subject IDs
+
+  if (!Array.isArray(subjectIds) || subjectIds.length === 0) {
+    return res.status(400).json({ message: "Please provide a valid array of subject IDs." });
+  }
+
+  try {
+    // Check if class exists
+    const classObj = await Classroom.findById(classId);
+    if (!classObj) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // Find all subject objects based on IDs
+    const validSubjects = await Subject.find({ _id: { $in: subjectIds } });
+
+    if (validSubjects.length !== subjectIds.length) {
+      return res.status(404).json({ message: "Some subjects not found." });
+    }
+
+    const invalidSubjects = subjectIds.filter(
+      (id) => !validSubjects.map((s) => s._id.toString()).includes(id.toString())
+    );
+
+    if (invalidSubjects.length > 0) {
+      return res.status(404).json({
+        message: "Some subjects not found.",
+        invalidSubjects,
+      });
+    }
+
+    // Filter out subjects not currently assigned
+    const removableSubjectIds = subjectIds.filter(
+      (subjectId) => classObj.subjects.includes(subjectId.toString())
+    );
+
+    if (removableSubjectIds.length === 0) {
+      return res.status(400).json({
+        message: "None of the provided subjects are assigned to this class.",
+      });
+    }
+
+    // Remove subjects from the class
+    classObj.subjects = classObj.subjects.filter(
+      (subjectId) => !removableSubjectIds.includes(subjectId.toString())
+    );
+    await classObj.save();
+
+    res.status(200).json({
+      message: "Subjects removed from class successfully.",
+      class: classObj,
+      updatedSubjects: classObj.subjects,
+      removedSubjects: removableSubjectIds,
+    });
+  } catch (error) {
+    console.error("Error removing subjects from class:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
+// Get subject by class.......Working
 exports.getSubjectsOfClass = async (req, res) => {
   const { ClassroomId } = req.params;
 
@@ -187,7 +249,7 @@ exports.getSubjectsOfClass = async (req, res) => {
 };
 
 
-// Remove assigned teacher
+// Remove assigned teacher....Working
 exports.removeTeacherFromClassroom = async (req, res) => {
   const { classroomId } = req.body;
 
@@ -205,9 +267,18 @@ exports.removeTeacherFromClassroom = async (req, res) => {
         .json({ message: "No teacher is assigned to this classroom" });
     }
 
-    // Remove the teacher assignment
+    const teacherId = classroom.teacher; 
+
+    // Remove the teacher assignment from the classroom
     classroom.teacher = null;
     await classroom.save();
+
+    // Update the Teacher schema by removing the classroom assignment
+    await Teacher.updateOne(
+      { _id: teacherId },
+      { $unset: { classroom: "" } }, 
+      { runValidators: false }
+    );
 
     res.status(200).json({
       message: "Teacher removed from classroom successfully",
@@ -220,6 +291,7 @@ exports.removeTeacherFromClassroom = async (req, res) => {
       .json({ message: "An unexpected error occurred", error: error.message });
   }
 };
+
 
 // Get single classroom........Working
 exports.getClassroomById = async (req, res) => {
@@ -297,4 +369,4 @@ exports.deleteClassroom = async (req, res) => {
   }
 };
 
-// update a classroom
+
