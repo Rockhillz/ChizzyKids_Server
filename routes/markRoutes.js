@@ -6,7 +6,7 @@ const router = express.Router();
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
 // Importing controllersg
-const { updateMarks, finalizeMarks, getMarksBySubject, unfinalizeMarks, getGradesByStudent } = require('../controllers/markController');
+const { updateMarks, finalizeMarks, getMarksBySubject, unfinalizeMarks, getGradesByStudent, resetMarks } = require('../controllers/markController');
 
 // Update marks for a student in a subject
 router.post('/mark/update', updateMarks);
@@ -22,5 +22,9 @@ router.get('/mark/:subjectId', getMarksBySubject);
 
 // Get marks for a specific student
 router.get('/student/grades/:studentId', authMiddleware, getGradesByStudent)
+
+// Reset marks for a student in a subject
+router.post("/mark/reset", authMiddleware, resetMarks);
+
 
 module.exports = router;

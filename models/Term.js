@@ -26,7 +26,13 @@ const termSchema = mongoose.Schema({
     isCurrentTerm: {
         type: Boolean,
         default: false,
-    }
+    },
+
+    isArchived: { 
+        type: Boolean, 
+        default: false 
+    },
+    
 }, { timestamps: true })
 
 module.exports = mongoose.model('Term', termSchema);
