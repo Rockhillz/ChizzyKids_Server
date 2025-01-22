@@ -99,6 +99,31 @@ exports.unfinalizeMarks = async (req, res) => {
   }
 };
 
+// Reset marks if there is a new term
+exports.resetMarks = async (req, res) => {
+  const { termId, subjectId } = req.body;
+
+  if (!termId || !subjectId) {
+    return res.status(400).json({ error: "termId and subjectId are required." });
+  }
+
+  try {
+    // Update marks where term and subject match
+    const result = await Mark.updateMany(
+      { term: termId, subject: subjectId },
+      { $set: { firstAssessment: null, secondAssessment: null, exam: null } }
+    );
+
+    res.status(200).json({
+      message: "Marks reset successfully.",
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error resetting marks:", error);
+    res.status(500).json({ error: "Failed to reset marks. Please try again." });
+  }
+};
+
 exports.getMarksBySubject = async (req, res) => {
   const { subject } = req.params;
 
@@ -121,13 +146,27 @@ exports.getGradesByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
 
-    const marks = await Mark.find({ student: studentId })
-      .populate("subject", "name") // Populating subject name
+    if (!studentId) {
+      return res.status(400).json({ message: "Student ID is required" });
+    }
+
+    // Step 1: Find the active (current) term (we can fetch it without the student)
+    const currentTerm = await Term.findOne({ isCurrentTerm: true });
+    if (!currentTerm) {
+      return res.status(404).json({ message: "No active term found" });
+    }
+
+    // Step 2: Find the marks for the student for the current term
+    const marks = await Mark.find({ student: studentId, term: currentTerm._id })
+      .populate("subject", "name")  // Populate the subject name
       .exec();
 
-    res.status(200).json(marks);
+    if (marks.length === 0) {
+      return res.status(200).json([]);  // Return an empty array if no marks are found
+    }
+
+    res.status(200).json(marks);  // Return the marks for the current term
   } catch (error) {
     res.status(500).json({ message: "Error fetching grades", error });
-    res.status(400).json({ message: "Bad Request", error });
   }
 };
