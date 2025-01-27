@@ -19,6 +19,7 @@ const eventRoute = require("./routes/eventRoutes");
 const markRoute = require("./routes/markRoutes");
 const termRoute = require("./routes/termRoutes");
 const sessionRoute = require("./routes/sessionRoutes");
+const promotionRoute = require("./routes/promotionAndGradRoutes");
 
 
 mongoose.connect(dbUrl).then(() => {
@@ -50,6 +51,7 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", markRoute);
     app.use("/api", termRoute);
     app.use("/api", sessionRoute);
+    app.use("/api", promotionRoute);
 
 
 

@@ -2,10 +2,10 @@ const Event = require('../models/Event');
 
 // Create a new Event
 exports.createEvent = async (req, res) => {
-    const { title, image, description, date, location } = req.body;
+    const { title, image, description, date } = req.body;
 
     // Validation
-    if (!title || !image || !description || !date || !location) {
+    if (!title || !image || !description || !date ) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -15,7 +15,6 @@ exports.createEvent = async (req, res) => {
             image,
             description,
             date,
-            location
         });
         await newEvent.save();
         res.status(201).json({ message: "Event created successfully", event: newEvent });
@@ -62,7 +61,6 @@ exports.updateEvent = async (req, res) => {
             image,
             description,
             date,
-            location
         }, { new: true });
 
         if (!updatedEvent) {
