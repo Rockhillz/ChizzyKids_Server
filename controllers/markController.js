@@ -170,3 +170,21 @@ exports.getGradesByStudent = async (req, res) => {
     res.status(500).json({ message: "Error fetching grades", error });
   }
 };
+
+exports.studentsSubjectMarks = async (req, res) => {
+  try {
+    const { subjectId } = req.params;
+    const { termId } = req.query; // Extract termId from query params
+
+    if (!termId) {
+      return res.status(400).json({ message: "Term ID is required" });
+    }
+
+    const marks = await Mark.find({ subject: subjectId, term: termId });
+
+    res.status(200).json({ success: true, marks });
+  } catch (error) {
+    console.error("Error fetching marks:", error);
+    res.status(500).json({ message: "Server error while fetching marks" });
+  }
+}

@@ -51,7 +51,18 @@ exports.createEvent = async (req, res) => {
 
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find().sort({ createdAt: -1 });
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// to get latest events
+
+exports.getLatestEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sor({ createdAt: -1 }).limit(3);
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ error: error.message });
