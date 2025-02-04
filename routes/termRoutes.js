@@ -6,14 +6,14 @@ const { adminMiddleware } = require("../middlewares/adminMiddleware");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
 //Import controllers
-const { createTerm, getCurrentTerm, getAllTermsForSession } = require("../controllers/termController");
+const { createTerm, getAllTermsForSession, getCurrentTermAndSession } = require("../controllers/termController");
 
 // import routes
 
 router.post('/createTerm', authMiddleware, adminMiddleware, createTerm);
 
 // get current term
-router.get('/currentTerm-and-session', authMiddleware, getCurrentTerm);
+router.get('/currentTerm-and-session', authMiddleware, getCurrentTermAndSession);
 
 // get all terms for a specific session
 

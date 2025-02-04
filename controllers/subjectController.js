@@ -165,37 +165,6 @@ exports.getSubjectsAssignedToTeacher = async (req, res) => {
 
 // gets students assigned to a subject.
 
-// exports.getStudentsBySubject = async (req, res) => {
-//   try {
-//     // Get the subjectId from the URL params
-//     const { subjectId } = req.params;
-
-//     // Find the subject and populate the students field
-//     const subject = await Subject.findById(subjectId)
-//       .populate("students", "fullname") // Adjust fields as needed
-//       .populate("teacher", "fullname"); // Optional, if you want to return teacher's name too
-
-//       console.log(subject)
-
-//     if (!subject) {
-//       return res.status(404).json({ success: false, message: "Subject not found" });
-//     }
-
-//     // Return the subject data along with the students assigned to it
-//     res.status(200).json({
-//       success: true,
-//       subject: subject.name,
-//       students: subject.students.map(student => ({
-//         id: student._id,
-//         name: student.fullname,
-//       })),
-//     });
-//   } catch (error) {
-//     console.error("Error fetching students for subject:", error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
 exports.getStudentsBySubject = async (req, res) => {
   try {
     // Get the subjectId from the URL params
