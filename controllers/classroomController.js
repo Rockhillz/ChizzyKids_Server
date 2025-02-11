@@ -328,7 +328,7 @@ exports.getClassroomAssignedToTeacher = async (req, res) => {
     if (!classroom) {
       return res
         .status(404)
-        .json({ success: false, message: "Classroom not found" });
+        .json({ success: false, message: "Classroom not assigned yet" });
     }
 
     res.json({
