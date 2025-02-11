@@ -1,0 +1,195 @@
+const Event = require("../models/Event");
+const cloudinary = require("../utilities/cloudinary");
+const fs = require("fs");
+const New = require("../models/New");
+
+// Events and News
+
+// Create a new Event...... Working
+exports.createEvent = async (req, res) => {
+  const { title, description, date } = req.body;
+
+  // Check if file is uploaded
+  if (!req.file) {
+    return res.status(400).json({ message: "Profile image is required" });
+  }
+
+  // Validation
+  if (!title || !description || !date) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  const uploadResult = await new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream(
+        { folder: "ChizzyKids_DB/events", resource_type: "image" },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      )
+      .end(req.file.buffer);
+  });
+
+  const image = uploadResult.secure_url;
+
+  try {
+    const newEvent = new Event({
+      title,
+      image,
+      description,
+      date,
+    });
+    await newEvent.save();
+    res
+      .status(201)
+      .json({ message: "Event created successfully", event: newEvent });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all events.......Working
+exports.getAllEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// to get latest events for Home page 3 events.....Working
+exports.getLatestEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 }).limit(3);
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// get latest events for event page......Workin
+exports.getLatestEventsPage = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 }).limit(15);
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get single event by ID......Working
+exports.getSingleEvent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const event = await Event.findById(id);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    res.status(200).json(event);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update an existing event.......Working
+exports.updateEvent = async (req, res) => {
+  const { eventId } = req.params;
+  const { title, description, date } = req.body;
+
+  try {
+    
+    const existingEvent = await Event.findById(eventId);
+    if (!existingEvent) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    let image = existingEvent.image;
+
+    // If a new image is uploaded, update it
+    if (req.file) {
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: "ChizzyKids_DB/events", resource_type: "image" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        ).end(req.file.buffer);
+      });
+
+      image = uploadResult.secure_url;
+    }
+
+    // Update the event
+    const updatedEvent = await Event.findByIdAndUpdate(
+      eventId,
+      { title, image, description, date },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Event updated successfully",
+      updatedEvent,
+    });
+
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+
+
+// Delete an existing event..... Working
+exports.deleteEvent = async (req, res) => {
+  const { eventId } = req.params;
+
+  try {
+    const deletedEvent = await Event.findByIdAndDelete(eventId);
+
+    if (!deletedEvent) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    res.status(200).json({ message: "Event deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+/// News Section
+
+// Create news
+exports.createNews = async (req, res) => {
+  const { title, content } = req.body;
+
+  // Validation
+  if (!title ||!content) {
+    return res.status(400).json({ error: "Title and content are required" });
+  }
+
+  try {
+    const newNews = new New({ title, content });
+
+    await newNews.save();
+
+    res.status(201).json({ message: "News created successfully", news: newNews });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// Get all news
+exports.getAllNews = async (req, res) => {
+  try {
+    const news = await New.find().sort({ createdAt: -1 });
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

@@ -9,7 +9,7 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import Controller
-const { createEvent, getAllEvents, getSingleEvent, updateEvent, deleteEvent} = require('../controllers/eventController')
+const { createEvent, getAllEvents, getSingleEvent, updateEvent, deleteEvent, getLatestEvents, getLatestEventsPage, createNews, getAllNews} = require('../controllers/eventAndNewsController')
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -35,9 +35,20 @@ const upload = multer({
 
 // Creating admin endpoints for events routes.
 router.post('/createEvent', authMiddleware, adminMiddleware, upload.single('image'), createEvent);
+
+// Get events routes
 router.get('/events', getAllEvents);
+router.get('/latest-events', getLatestEvents);
+router.get('/events/eventsPage', getLatestEventsPage);
+
+
 router.get('/event/:eventId', getSingleEvent);
-router.patch('/updateEvent/:eventId', authMiddleware, adminMiddleware, updateEvent);
+router.patch('/updateEvent/:eventId', authMiddleware, adminMiddleware, upload.single('image'), updateEvent);
 router.delete('/deleteEvent/:eventId', authMiddleware, adminMiddleware, deleteEvent);
 
-module.exports = router; 
+
+// News Routes
+router.post('/createNews', authMiddleware, adminMiddleware, createNews);
+router.get('/news', getAllNews);
+
+module.exports = router;
