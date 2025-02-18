@@ -16,6 +16,7 @@ const newSchema = new mongoose.Schema({
         default: Date.now,
         required: true,
     }
-})
+},
+{ timestamps: true })
 
 module.exports = mongoose.model('New', newSchema);

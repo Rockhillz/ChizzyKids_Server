@@ -9,7 +9,7 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import Controller
-const { createEvent, getAllEvents, getSingleEvent, updateEvent, deleteEvent, getLatestEvents, getLatestEventsPage, createNews, getAllNews} = require('../controllers/eventAndNewsController')
+const { createEvent, getAllEvents, getSingleEvent, updateEvent, deleteEvent, getLatestEvents, getLatestEventsPage, createNews, getAllNews, getLatestNews, getLatestNewsPage, deleteNews, updateNews, getSingleNews} = require('../controllers/eventAndNewsController')
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -50,5 +50,12 @@ router.delete('/deleteEvent/:eventId', authMiddleware, adminMiddleware, deleteEv
 // News Routes
 router.post('/createNews', authMiddleware, adminMiddleware, createNews);
 router.get('/news', getAllNews);
+router.get('/single-news/:newsId', getSingleNews);
+
+router.get('/latest-news', getLatestNews);
+router.get('/news/newsPage', getLatestNewsPage);
+
+router.delete('/deleteNews/:newsId', authMiddleware, adminMiddleware, deleteNews);
+router.patch('/updateNews/:newsId', authMiddleware, adminMiddleware, updateNews);
 
 module.exports = router;
