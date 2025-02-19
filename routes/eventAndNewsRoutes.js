@@ -11,6 +11,7 @@ const { authMiddleware } = require('../middlewares/authMiddleware');
 // Import Controller
 const { createEvent, getAllEvents, getSingleEvent, updateEvent, deleteEvent, getLatestEvents, getLatestEventsPage, createNews, getAllNews, getLatestNews, getLatestNewsPage, deleteNews, updateNews, getSingleNews} = require('../controllers/eventAndNewsController')
 
+// --------------------------  MULTER --------------------------------
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {

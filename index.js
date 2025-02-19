@@ -9,7 +9,6 @@ const dbUrl = process.env.MONGODB_URL;
 const studentRoute = require("./routes/studentRoutes");
 const attendanceRoute = require('./routes/attendanceRoutes');
 const teacherRoute = require("./routes/teacherRoutes");
-const announcementRoute = require("./routes/annoucementRoutes");
 const subjectRoute = require("./routes/subjectRoutes");
 const classroomRoute = require("./routes/classroomRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
@@ -20,6 +19,7 @@ const markRoute = require("./routes/markRoutes");
 const termRoute = require("./routes/termRoutes");
 const sessionRoute = require("./routes/sessionRoutes");
 const promotionRoute = require("./routes/promotionAndGradRoutes");
+const galleryRoute = require("./routes/galleryRoutes");
 
 
 mongoose.connect(dbUrl).then(() => {
@@ -41,7 +41,6 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", studentRoute);
     app.use('/api', attendanceRoute);
     app.use("/api", teacherRoute);
-    app.use("/api", announcementRoute);
     app.use("/api", subjectRoute);
     app.use("/api", classroomRoute);
     app.use("/api", reviewRoute);
@@ -52,6 +51,7 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", termRoute);
     app.use("/api", sessionRoute);
     app.use("/api", promotionRoute);
+    app.use("/api", galleryRoute);
 
 
 
