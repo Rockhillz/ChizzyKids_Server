@@ -164,7 +164,7 @@ exports.deleteEvent = async (req, res) => {
 
 /// News Section
 
-// Create news
+// Create news........ Working
 exports.createNews = async (req, res) => {
   const { title, content } = req.body;
 
