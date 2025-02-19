@@ -9,17 +9,17 @@ const dbUrl = process.env.MONGODB_URL;
 const studentRoute = require("./routes/studentRoutes");
 const attendanceRoute = require('./routes/attendanceRoutes');
 const teacherRoute = require("./routes/teacherRoutes");
-const announcementRoute = require("./routes/annoucementRoutes");
 const subjectRoute = require("./routes/subjectRoutes");
 const classroomRoute = require("./routes/classroomRoutes");
 const reviewRoute = require("./routes/reviewRoutes");
-const eventRoute = require("./routes/eventRoutes");
+const eventRoute = require("./routes/eventAndNewsRoutes"); 
 // const academicRoute = require("./routes/academicYearRoutes");
 // const gradeRoute = require("./routes/gradeRoutes");
 const markRoute = require("./routes/markRoutes");
 const termRoute = require("./routes/termRoutes");
 const sessionRoute = require("./routes/sessionRoutes");
 const promotionRoute = require("./routes/promotionAndGradRoutes");
+const galleryRoute = require("./routes/galleryRoutes");
 
 
 mongoose.connect(dbUrl).then(() => {
@@ -31,17 +31,16 @@ mongoose.connect(dbUrl).then(() => {
     app.use(express.json());
     app.use(cors({
         origin: ['http://localhost:5173', 'http://localhost:5174',
-             'http://localhost:5175', 'https://chizzy-kids-school.onrender.com'],  // Allow both local ports
+             'http://localhost:5175', 'https://chizzy-kids-school.onrender.com'],  
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization'],
-        credentials: true // Add this if you're dealing with cookies or sessions
+        credentials: true
     }));
 
     //Mount Routes on /api
     app.use("/api", studentRoute);
     app.use('/api', attendanceRoute);
     app.use("/api", teacherRoute);
-    app.use("/api", announcementRoute);
     app.use("/api", subjectRoute);
     app.use("/api", classroomRoute);
     app.use("/api", reviewRoute);
@@ -52,6 +51,7 @@ mongoose.connect(dbUrl).then(() => {
     app.use("/api", termRoute);
     app.use("/api", sessionRoute);
     app.use("/api", promotionRoute);
+    app.use("/api", galleryRoute);
 
 
 
