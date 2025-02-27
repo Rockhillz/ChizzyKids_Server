@@ -1,8 +1,10 @@
 const Gallery = require("../models/Gallery");
+const cloudinary = require("../utilities/cloudinary");
+
 
 // Create a galleryImage..... WOrks
 exports.createGalleryImage = async (req, res) => {
-  const { title, description } = req.body;
+  const { title } = req.body;
 
   // Check if file is uploaded
   if (!req.file) {
@@ -10,9 +12,11 @@ exports.createGalleryImage = async (req, res) => {
   }
 
   // Validation
-  if (!title || !description) {
+  if (!title) {
     return res.status(400).json({ error: "All fields are required" });
   }
+
+  // 
 
   const uploadResult = await new Promise((resolve, reject) => {
     cloudinary.uploader
@@ -31,7 +35,6 @@ exports.createGalleryImage = async (req, res) => {
   try {
     const newGallery = await new Gallery({
       title,
-      description,
       image,
     });
 
@@ -83,7 +86,7 @@ exports.getSingleGalleryImage = async (req, res) => {
 // Update an existing gallery image.....
 exports.updateGalleryImage = async (req, res) => {
   const { galleryId } = req.params;
-  const { title, description } = req.body;
+  const { title } = req.body;
 
   try {
     const existingGallery = await Gallery.findById(galleryId);
@@ -111,7 +114,7 @@ exports.updateGalleryImage = async (req, res) => {
         // Update Gallery
         const updatedGallery = await Gallery.findByIdAndUpdate(
           galleryId,
-          { title, image, description},
+          { title, image},
           { new: true }
         );
 
