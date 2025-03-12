@@ -46,19 +46,40 @@ const markSchema = new mongoose.Schema({
 
   grade: {
     type: String,
-    enum: ["A", "B", "C", "D", "E", "F"],  // Enum to allow only letter grades
-    default: "F",  // Default to "F" if not set
+    enum: ["A", "B", "C", "D", "E", "F"],
+    default: "F",
   },
 
   term: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Term',
     required: true,
+  },
+
+  remark: {
+    type: String,
+    default: 'Needs Improvement',
   }
 
-  // will add remark here later with a post save middleware
-
-
 }, { timestamps: true });
+
+// Pre-save middleware to update the report based on grade
+markSchema.pre('save', function (next) {
+  if (this.grade === 'A') {
+    this.report = 'Excellent performance! Keep it up!';
+  } else if (this.grade === 'B') {
+    this.report = 'Good job! You can do even better!';
+  } else if (this.grade === 'C') {
+    this.report = 'Satisfactory, but room for improvement.';
+  } else if (this.grade === 'D') {
+    this.report = 'Below average. Needs more effort.';
+  } else if (this.grade === 'E') {
+    this.report = 'Poor performance. Consider extra help.';
+  } else {
+    this.report = 'Fail. Urgent improvement needed.';
+  }
+  
+  next();
+});
 
 module.exports = mongoose.model('Mark', markSchema);

@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const generateStudentID = require("../utilities/studentIDGenerator");
-const generateSchoolEmail = require("../utilities/generateSchoolEmail");
 
 const studentSchema = mongoose.Schema(
   {
@@ -112,22 +110,5 @@ studentSchema.pre("save", async function (next) {
     next(error);
   }
 });
-
-// Both Redundant due to the logic being created in the controller for speed and control
-// Generate unique enrollment number
-// studentSchema.pre('save', async function (next) {
-//   if (!this.studentID) {
-//     this.studentID = generateStudentID(this.yearEnrolled);
-//   };
-//   next();
-// })
-
-// // Generate email for student
-// studentSchema.pre('save', function (next) {
-//   if (!this.email) {
-//      this.email = generateSchoolEmail(this.fullname);
-//   };
-//   next();
-// });
 
 module.exports = mongoose.model("Student", studentSchema);
