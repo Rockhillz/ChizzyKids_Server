@@ -10,7 +10,7 @@ const { adminMiddleware } = require('../middlewares/adminMiddleware');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 // Import controllers
-const { createTeacher, loginTeacher, getAllTeachers, singleTeacherProfile, updateTeacherProfile, assignteeSub, deleteTeacher, requestPasswordReset, resetPassword} = require('../controllers/TeacherController')
+const { createTeacher, loginTeacher, getAllTeachers, singleTeacherProfile, updateTeacherProfile, assignteeSub, deleteTeacher, requestPasswordReset, resetPassword, sendMail} = require('../controllers/TeacherController')
 
 
 // Create uploads directory if it doesn't exist
@@ -52,6 +52,8 @@ router.post('/register/teacher', authMiddleware, adminMiddleware, upload.single(
 router.patch('/assign/Teacher-To-Subject', authMiddleware, adminMiddleware, assignteeSub)  // Assign teacher to a subject
 router.get('/getAllTeachers', authMiddleware, adminMiddleware, getAllTeachers);
 router.delete('/deleteTeacher/:teacherId', authMiddleware, adminMiddleware, deleteTeacher);
+
+router.post('/send-mail', sendMail)
 
 
 
