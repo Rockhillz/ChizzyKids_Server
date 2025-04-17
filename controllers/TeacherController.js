@@ -288,13 +288,13 @@ exports.requestPasswordReset = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail", // Or another email service
       auth: {
-        user: "alasizuchukwu@gmail.com",
-        pass: "vmso exyv rpkr lotd",
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
       },
     });
 
     await transporter.sendMail({
-      from: "Alasizuchukwu@gmail.com",
+      from: process.env.EMAIL,
       to: teacher.email,
       subject: "Password Reset Token",
       text: `Your password reset token is: ${resetToken}. It will expire in 10 minutes.`,
@@ -335,5 +335,46 @@ exports.resetPassword = async (req, res) => {
   } catch (error) {
     console.error("Error in resetPassword:", error);
     res.status(500).json({ message: "Something went wrong", error });
+  }
+};
+
+// Email to principal
+exports.sendMail = async (req, res) => {
+  const { fullName, phone, subject, message } = req.body;
+
+  if (!fullName || !phone || !subject || !message) {
+    return res.status(400).json({ success: false, message: "All fields are required" });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: "izuchukwualaneme@gmail.com",
+      subject: subject,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+          <h2 style="color: #4a90e2;">📩 New Enquiry Submission</h2>
+          <p><strong>Parent Name:</strong> ${fullName}</p>
+          <p><strong>Parent Phone:</strong> ${phone}</p>
+          <hr />
+          <p style="white-space: pre-line;">${message}</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({ success: true, message: "Message sent successfully!" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return res.status(500).json({ success: false, message: "Failed to send email. Try again later." });
   }
 };
