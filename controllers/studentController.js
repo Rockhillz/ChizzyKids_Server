@@ -25,6 +25,9 @@ exports.createStudent = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
+  // Normalize email to lowercase
+  const normalizedEmail = email?.toLowerCase();
+
   // Check if file is uploaded
   if (!req.file) {
     return res.status(400).json({ message: "Profile image is required" });
@@ -60,7 +63,7 @@ exports.createStudent = async (req, res) => {
       fullname,
       password,
       image,
-      email,
+      email: normalizedEmail,
       studentID,
       address,
       parents_name,
