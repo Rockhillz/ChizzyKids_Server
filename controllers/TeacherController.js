@@ -26,6 +26,9 @@ exports.createTeacher = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
+  // Normalize email to lowercase
+  const normalizedEmail = email?.toLowerCase();
+
   // Check if file is uploaded
   if (!req.file) {
     return res.status(400).json({ message: "Profile image is required" });
@@ -39,19 +42,19 @@ exports.createTeacher = async (req, res) => {
     }
 
     // Upload image to Cloudinary (from memory buffer)
-        const uploadResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream(
-              { folder: "ChizzyKids_DB/teachers", resource_type: "image" },
-              (error, result) => {
-                if (error) return reject(error);
-                resolve(result);
-              }
-            )
-            .end(req.file.buffer);
-        });
-    
-        const image = uploadResult.secure_url;
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          { folder: "ChizzyKids_DB/teachers", resource_type: "image" },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        )
+        .end(req.file.buffer);
+    });
+
+    const image = uploadResult.secure_url;
 
     // Generate unique employeeID and teacher Email.
     const employeeID = generateEmployeeID(new Date().getFullYear());
@@ -70,7 +73,7 @@ exports.createTeacher = async (req, res) => {
       previous_school,
       dateOfBirth,
       employeeID,
-      email,
+      email: normalizedEmail,
     });
 
     await newTeacher.save();
@@ -89,7 +92,7 @@ exports.loginTeacher = async (req, res) => {
   try {
     // Check if teacher exists.
     const teacher = await Teacher.findOne({ email });
-    
+
     if (!teacher) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -108,7 +111,6 @@ exports.loginTeacher = async (req, res) => {
         expiresIn: "1h",
       }
     );
-    
 
     res.status(200).json({ message: `Login successful`, token, teacher });
   } catch (err) {
@@ -149,12 +151,8 @@ exports.updateTeacherProfile = async (req, res) => {
 // Get all Teachers..........Working
 exports.getAllTeachers = async (req, res) => {
   try {
+    const teachers = await Teacher.find().populate("classroom", "className");
 
-    const teachers = await Teacher.find().populate(
-      "classroom",
-      "className"
-    );
-    
     res.status(200).json({ teachers });
   } catch (error) {
     console.error("Unexpected error: ", error);
@@ -180,12 +178,18 @@ exports.assignteeSub = async (req, res) => {
 
     // Check if the subject has already been assigned to a teacher
     if (subjectObj.teacher) {
-      return res.status(400).json({ message: "This subject is already assigned to another teacher" });
+      return res
+        .status(400)
+        .json({
+          message: "This subject is already assigned to another teacher",
+        });
     }
 
     // Validate if the subject is already in the teacher's subjects array
     if (teacherObj.subjects.includes(subjectId)) {
-      return res.status(400).json({ message: "This subject is already assigned to the teacher" });
+      return res
+        .status(400)
+        .json({ message: "This subject is already assigned to the teacher" });
     }
 
     // Assign subject to the teacher's subjects array
@@ -196,18 +200,20 @@ exports.assignteeSub = async (req, res) => {
     subjectObj.teacher = teacherObj._id;
     await subjectObj.save();
 
-    res.status(200).json({ message: "Teacher assigned to subject successfully" });
+    res
+      .status(200)
+      .json({ message: "Teacher assigned to subject successfully" });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ message: "An unexpected error occurred", error: error.message });
+    res
+      .status(500)
+      .json({ message: "An unexpected error occurred", error: error.message });
   }
 };
 
-
-
 // Remove assigned teacher... Not added to the routes yet
 exports.removeAssignedTeacher = async (req, res) => {
-  const { teeId, subId} = req.body;
+  const { teeId, subId } = req.body;
 
   try {
     // Check if teacher and subject exist
@@ -221,14 +227,17 @@ exports.removeAssignedTeacher = async (req, res) => {
     }
 
     // Remove teacher from subject
-    teacherObj.subjects = teacherObj.subjects.filter((subject) => subject.toString()!== subId);
+    teacherObj.subjects = teacherObj.subjects.filter(
+      (subject) => subject.toString() !== subId
+    );
     await teacherObj.save();
-    res.status(200).json({ message: "Teacher removed from subject successfully" });
-
- } catch (error) {
-   console.log("Error: ", error);
- }
-}
+    res
+      .status(200)
+      .json({ message: "Teacher removed from subject successfully" });
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
 
 // delete teacher..............Working
 exports.deleteTeacher = async (req, res) => {
@@ -253,17 +262,19 @@ exports.singleTeacherProfile = async (req, res) => {
 
   try {
     const teacher = await Teacher.findById(teacherId)
-  .populate("classroom", "className") // Populate classroom with only className
-  .populate("subjects", "name"); // Populate subjects with only subjectName
+      .populate("classroom", "className") // Populate classroom with only className
+      .populate("subjects", "name"); // Populate subjects with only subjectName
 
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-    res.status(200).json({ message: `Teacher Profile fetched successfully`, teacher });
-    } catch (error) {
+    res
+      .status(200)
+      .json({ message: `Teacher Profile fetched successfully`, teacher });
+  } catch (error) {
     console.error("Unexpected error: ", error);
-    }
-}
+  }
+};
 
 //Forget Password endpoint
 //First request token.
@@ -301,8 +312,7 @@ exports.requestPasswordReset = async (req, res) => {
     });
 
     res.status(200).json({ message: "Reset token sent successfully" });
-
-  } catch (error) {;
+  } catch (error) {
     res.status(500).json({ message: "Something went wrong", error });
   }
 };
@@ -316,7 +326,6 @@ exports.resetPassword = async (req, res) => {
     if (!teacher) {
       return res.status(404).json({ message: "User not found" });
     }
-   
 
     // Validate the token
     if (teacher.resetPasswordToken !== token) {
@@ -343,7 +352,9 @@ exports.sendMail = async (req, res) => {
   const { fullName, phone, subject, message } = req.body;
 
   if (!fullName || !phone || !subject || !message) {
-    return res.status(400).json({ success: false, message: "All fields are required" });
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required" });
   }
 
   try {
@@ -372,9 +383,16 @@ exports.sendMail = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(200).json({ success: true, message: "Message sent successfully!" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Message sent successfully!" });
   } catch (error) {
     console.error("Error sending email:", error);
-    return res.status(500).json({ success: false, message: "Failed to send email. Try again later." });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Failed to send email. Try again later.",
+      });
   }
 };
