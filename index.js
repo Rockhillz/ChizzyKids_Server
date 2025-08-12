@@ -36,6 +36,7 @@ mongoose
           "http://localhost:5174",
           "http://localhost:5175",
           "https://chizzy-kids-school.onrender.com",
+          "https://chizzykidsgroupofschools.com.ng",
         ],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         allowedHeaders: ["Content-Type", "Authorization"],
