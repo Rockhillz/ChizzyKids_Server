@@ -8,6 +8,7 @@ const nodemailer = require("nodemailer");
 // const generateEmail = require("../utilities/generateSchoolEmail");
 const cloudinary = require("../utilities/cloudinary");
 const fs = require("fs");
+const { sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail, sendEnquiryEmail } = require("../notification/email");
 
 // Create a new Teacher.........Working
 exports.createTeacher = async (req, res) => {
@@ -58,7 +59,6 @@ exports.createTeacher = async (req, res) => {
 
     // Generate unique employeeID and teacher Email.
     const employeeID = generateEmployeeID(new Date().getFullYear());
-    // const email = generateEmail(fullname);
 
     // Create a new teacher
     const newTeacher = new Teacher({
@@ -77,16 +77,20 @@ exports.createTeacher = async (req, res) => {
     });
 
     await newTeacher.save();
+
+    await sendWelcomeEmail(newTeacher.email, newTeacher.fullname);
+
     res
       .status(200)
       .json({ message: "Teacher created successfully", newTeacher });
+
   } catch (error) {
     console.error("Catch error: ", error);
   }
 };
 
 // Login a Teacher........Working
-exports.loginTeacher = async (req, res) => {
+exports.loginTeacher = async (req, res) => { 
   const { email, password } = req.body;
 
   try {
@@ -108,7 +112,7 @@ exports.loginTeacher = async (req, res) => {
       { teacherId: teacher._id, role: teacher.role },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       }
     );
 
@@ -288,28 +292,15 @@ exports.requestPasswordReset = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Store the plain resetToken in the database
     teacher.resetPasswordToken = resetToken;
-    // student.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // Token expires in 15 minutes
+    teacher.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     await teacher.save();
     // Send email
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // Or another email service
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL,
-      to: teacher.email,
-      subject: "Password Reset Token",
-      text: `Your password reset token is: ${resetToken}. It will expire in 10 minutes.`,
-    });
+    await sendPasswordResetEmail(teacher.email, teacher.fullname, resetToken);
 
     res.status(200).json({ message: "Reset token sent successfully" });
   } catch (error) {
@@ -332,13 +323,18 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid token" });
     }
 
-    // Update the password
-    // console.log(password);
+    // Check if the token has expired
+    if (teacher.resetPasswordExpires < Date.now()) {
+      return res.status(400).json({ message: "Token has expired" });
+    }
+
     teacher.password = password;
-    // console.log("Hashed password: ",student.password);
-    teacher.resetPasswordToken = undefined; // Clear the token after use
+    teacher.resetPasswordToken = undefined;
+    teacher.resetPasswordExpires = undefined;
 
     await teacher.save();
+
+    await sendResetSuccessEmail(teacher.email, teacher.fullname);
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
@@ -351,37 +347,8 @@ exports.resetPassword = async (req, res) => {
 exports.sendMail = async (req, res) => {
   const { fullName, phone, subject, message } = req.body;
 
-  if (!fullName || !phone || !subject || !message) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
-  }
-
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: "izuchukwualaneme@gmail.com",
-      subject: subject,
-      html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
-          <h2 style="color: #4a90e2;">📩 New Enquiry Submission</h2>
-          <p><strong>Parent Name:</strong> ${fullName}</p>
-          <p><strong>Parent Phone:</strong> ${phone}</p>
-          <hr />
-          <p style="white-space: pre-line;">${message}</p>
-        </div>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
+  await sendEnquiryEmail(fullName, phone, subject, message);
 
     return res
       .status(200)
