@@ -8,8 +8,7 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const cloudinary = require("../utilities/cloudinary");
 const fs = require("fs");
-
-// Creating Endpoints for students.
+const { sendWelcomeEmail, sendPasswordResetEmail, sendResetSuccessEmail } = require("../notification/email");
 
 // Create a new student........Working
 exports.createStudent = async (req, res) => {
@@ -74,6 +73,7 @@ exports.createStudent = async (req, res) => {
 
     await newStudent.save();
 
+    await sendWelcomeEmail(newStudent.email, newStudent.fullname);
 
     res.status(201).json({
       message: "Student created successfully",
@@ -117,7 +117,7 @@ exports.loginStudent = async (req, res) => {
 
     // Generate token
     const token = jwt.sign({ studentId: student._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
 
     res.status(200).json({ message: `Login successful`, token, student });
@@ -262,28 +262,15 @@ exports.requestPasswordReset = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const resetToken = crypto.randomBytes(32).toString("hex");
+     const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Store the plain resetToken in the database
     student.resetPasswordToken = resetToken;
-    // student.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // Token expires in 15 minutes
+    student.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     await student.save();
     // Send email
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // Or another email service
-      auth: {
-        user: "alasizuchukwu@gmail.com",
-        pass: "vmso exyv rpkr lotd",
-      },
-    });
-
-    await transporter.sendMail({
-      from: "Alasizuchukwu@gmail.com",
-      to: student.email,
-      subject: "Password Reset Token",
-      text: `Your password reset token is: ${resetToken}. It will expire in 10 minutes.`,
-    });
+    await sendPasswordResetEmail(student.email, student.fullname, resetToken);
 
     res.status(200).json({ message: "Reset token sent successfully" });
 
@@ -309,11 +296,19 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid token" });
     }
 
+    // Check if the token has expired
+    if (student.resetPasswordExpires < Date.now()) {
+      return res.status(400).json({ message: "Token has expired" });
+    }
+
     // Update the password
     student.password = password;
-    student.resetPasswordToken = undefined; // Clear the token after use
+    student.resetPasswordToken = undefined;
+    student.resetPasswordExpires = undefined;
 
     await student.save();
+
+    await sendResetSuccessEmail(student.email, student.fullname);
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {

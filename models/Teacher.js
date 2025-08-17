@@ -73,12 +73,12 @@ const teacherSchema = new mongoose.Schema({
 
     previous_school: {
       type: String,
-      required: true
+      required: false
     },
 
     qualification: [{
       type: String,
-      required: true
+      required: false
     }],
 
     yearEnrolled: {
@@ -89,7 +89,12 @@ const teacherSchema = new mongoose.Schema({
     
     resetPasswordToken: { 
       type: String, 
-      select: false 
+      required: false
+    },
+
+    resetPasswordExpires: { 
+      type: Date, 
+      required: false
     },
     
   }, { timestamps: true } );
